@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strconv"
 )
@@ -24,8 +23,9 @@ func LoadFile(filename string) []string {
 		lines = append(lines, scanner.Text())
 	}
 
+	// I don't know what this line does
 	if err := scanner.Err(); err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	return lines
