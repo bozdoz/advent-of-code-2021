@@ -1,9 +1,13 @@
 package main
 
-import "testing"
+import (
+	"testing"
+
+	"bozdoz.com/aoc-2021/utils"
+)
 
 func TestLoading(t *testing.T) {
-	ints := LoadInts("example.txt")
+	ints := utils.LoadInts("example.txt")
 
 	if len(ints) != 6 {
 		t.Log("example.txt should have 6 ints", ints)
@@ -13,7 +17,7 @@ func TestLoading(t *testing.T) {
 
 func TestExampleOne(t *testing.T) {
 	expected := 514579
-	ints := LoadInts("example.txt")
+	ints := utils.LoadInts("example.txt")
 	val, err := PartOne(ints)
 
 	if err != nil {
@@ -29,7 +33,7 @@ func TestExampleOne(t *testing.T) {
 
 func TestExampleTwo(t *testing.T) {
 	expected := 241861950
-	ints := LoadInts("example.txt")
+	ints := utils.LoadInts("example.txt")
 	val, err := PartTwo(ints)
 
 	if err != nil {
