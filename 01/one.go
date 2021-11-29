@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"os"
-	"strconv"
+
+	"bozdoz.com/aoc-2021/utils"
 )
 
 func PartOne(nums []int) (int, error) {
@@ -34,45 +34,6 @@ func PartTwo(nums []int) (int, error) {
 	return -1, errors.New("failed to find valid numbers")
 }
 
-func Load(filename string) []string {
-	file, err := os.Open(filename)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-
-	lines := []string{}
-
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-
-	if err := scanner.Err(); err != nil {
-		fmt.Println(err)
-	}
-
-	return lines
-}
-
-func LoadInts(filename string) []int {
-	vals := Load(filename)
-	nums := []int{}
-
-	for _, val := range vals {
-		i, err := strconv.Atoi(val)
-		if err != nil {
-			panic(err)
-		}
-		nums = append(nums, i)
-	}
-
-	return nums
-}
-
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("You must pass the txt file as an arg")
@@ -80,7 +41,7 @@ func main() {
 	}
 
 	filename := os.Args[1]
-	nums := LoadInts(filename)
+	nums := utils.LoadInts(filename)
 
 	answer, err := PartOne(nums)
 
