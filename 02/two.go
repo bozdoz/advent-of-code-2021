@@ -10,6 +10,16 @@ import (
 	"bozdoz.com/aoc-2021/utils"
 )
 
+func WithMatchedStrings(vals []string, forEach func(parts []string)) {
+	re := regexp.MustCompile(`(\d+)\-(\d+)\s(\w):\s(\w+)$`)
+
+	for _, val := range vals {
+		parts := re.FindAllStringSubmatch(val, -1)[0]
+
+		forEach(parts)
+	}
+}
+
 type Policy struct {
 	min, max       int
 	char, password string
@@ -22,22 +32,11 @@ func goodPassword(pass Policy) bool {
 }
 
 func PartOne(vals []string) (int, error) {
-	re := regexp.MustCompile(`(\d+)\-(\d+)\s(\w):\s(\w+)$`)
 	count := 0
-	for _, val := range vals {
-		parts := re.FindAllStringSubmatch(val, -1)[0]
 
-		min, err := strconv.Atoi(parts[1])
-
-		if err != nil {
-			return -1, err
-		}
-
-		max, err := strconv.Atoi(parts[2])
-
-		if err != nil {
-			return -1, err
-		}
+	WithMatchedStrings(vals, func(parts []string) {
+		min, _ := strconv.Atoi(parts[1])
+		max, _ := strconv.Atoi(parts[2])
 
 		policy := Policy{
 			min:      min,
@@ -49,7 +48,7 @@ func PartOne(vals []string) (int, error) {
 		if goodPassword(policy) {
 			count += 1
 		}
-	}
+	})
 
 	return count, nil
 }
@@ -71,22 +70,11 @@ func goodPassword2(pass Policy2) bool {
 }
 
 func PartTwo(vals []string) (int, error) {
-	re := regexp.MustCompile(`(\d+)\-(\d+)\s(\w):\s(\w+)$`)
 	count := 0
-	for _, val := range vals {
-		parts := re.FindAllStringSubmatch(val, -1)[0]
 
-		first, err := strconv.Atoi(parts[1])
-
-		if err != nil {
-			return -1, err
-		}
-
-		second, err := strconv.Atoi(parts[2])
-
-		if err != nil {
-			return -1, err
-		}
+	WithMatchedStrings(vals, func(parts []string) {
+		first, _ := strconv.Atoi(parts[1])
+		second, _ := strconv.Atoi(parts[2])
 
 		policy := Policy2{
 			first:    first,
@@ -98,7 +86,7 @@ func PartTwo(vals []string) (int, error) {
 		if goodPassword2(policy) {
 			count += 1
 		}
-	}
+	})
 
 	return count, nil
 }
