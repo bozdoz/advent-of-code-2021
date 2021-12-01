@@ -7,18 +7,20 @@ import (
 )
 
 func TestLoading(t *testing.T) {
-	ints := utils.LoadInts("example.txt")
+	expected := 10
+	vals := utils.LoadInts("example.txt")
 
-	if len(ints) != 6 {
-		t.Log("example.txt should have 6 ints", ints)
+	if len(vals) != expected {
+		t.Logf("example.txt should have %d ints", expected)
+		t.Log(vals)
 		t.Fail()
 	}
 }
 
 func TestExampleOne(t *testing.T) {
-	expected := 514579
-	ints := utils.LoadInts("example.txt")
-	val, err := PartOne(ints)
+	expected := 7
+	vals := utils.LoadInts("example.txt")
+	val, err := PartOne(vals)
 
 	if err != nil {
 		t.Log("error should be nil", err)
@@ -32,7 +34,7 @@ func TestExampleOne(t *testing.T) {
 }
 
 func TestExampleTwo(t *testing.T) {
-	expected := 241861950
+	expected := 5
 	ints := utils.LoadInts("example.txt")
 	val, err := PartTwo(ints)
 
