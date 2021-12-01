@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
@@ -9,29 +8,49 @@ import (
 )
 
 func PartOne(nums []int) (int, error) {
-	for _, first := range nums {
-		for _, second := range nums {
-			if sum := first + second; sum == 2020 {
-				return first * second, nil
-			}
+	last := nums[0]
+	count := 0
+
+	for _, val := range nums {
+		if val > last {
+			count += 1
 		}
+		last = val
 	}
 
-	return -1, errors.New("failed to find valid numbers")
+	return count, nil
+}
+
+func sum(nums []int) int {
+	s := 0
+
+	for _, val := range nums {
+		s += val
+	}
+
+	return s
 }
 
 func PartTwo(nums []int) (int, error) {
-	for _, first := range nums {
-		for _, second := range nums {
-			for _, third := range nums {
-				if sum := first + second + third; sum == 2020 {
-					return first * second * third, nil
-				}
-			}
-		}
+	measurement := 3
+	wins := [][]int{}
+	max := len(nums) - measurement + 1
+
+	for i := range nums[:max] {
+		wins = append(wins, nums[i:i+measurement])
 	}
 
-	return -1, errors.New("failed to find valid numbers")
+	last := sum(wins[0])
+	count := 0
+	for _, arr := range wins[1:] {
+		val := sum(arr)
+		if val > last {
+			count += 1
+		}
+		last = val
+	}
+
+	return count, nil
 }
 
 func main() {
