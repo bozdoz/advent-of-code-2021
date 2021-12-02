@@ -6,21 +6,10 @@ import (
 	"bozdoz.com/aoc-2021/utils"
 )
 
-func TestLoading(t *testing.T) {
-	expected := 3
-	vals := utils.LoadFile("example.txt")
-
-	if len(vals) != expected {
-		t.Log("example.txt should have 6 vals", vals)
-		t.Fail()
-	}
-}
-
 func TestExampleOne(t *testing.T) {
-	expected := 2
+	expected := 150
 	vals := utils.LoadFile("example.txt")
 	val, err := PartOne(vals)
-	t.Log("done")
 
 	if err != nil {
 		t.Log("error should be nil", err)
@@ -34,7 +23,7 @@ func TestExampleOne(t *testing.T) {
 }
 
 func TestExampleTwo(t *testing.T) {
-	expected := 1
+	expected := 900
 	vals := utils.LoadFile("example.txt")
 	val, err := PartTwo(vals)
 

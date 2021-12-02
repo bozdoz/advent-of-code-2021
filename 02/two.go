@@ -3,92 +3,67 @@ package main
 import (
 	"fmt"
 	"os"
-	"regexp"
-	"strconv"
 	"strings"
-
+	"strconv"
+	
 	"bozdoz.com/aoc-2021/utils"
 )
 
-func WithMatchedStrings(vals []string, forEach func(parts []string)) {
-	re := regexp.MustCompile(`(\d+)\-(\d+)\s(\w):\s(\w+)$`)
+func PartOne(vals []string) (int, error) {
+	horizontal := 0
+	depth := 0
 
 	for _, val := range vals {
-		parts := re.FindAllStringSubmatch(val, -1)[0]
+		v := strings.Fields(val)
+		num, err := strconv.Atoi(v[1])
 
-		forEach(parts)
-	}
-}
-
-type Policy struct {
-	min, max       int
-	char, password string
-}
-
-func goodPassword(pass Policy) bool {
-	count := strings.Count(pass.password, pass.char)
-
-	return count >= pass.min && count <= pass.max
-}
-
-func PartOne(vals []string) (int, error) {
-	count := 0
-
-	WithMatchedStrings(vals, func(parts []string) {
-		min, _ := strconv.Atoi(parts[1])
-		max, _ := strconv.Atoi(parts[2])
-
-		policy := Policy{
-			min:      min,
-			max:      max,
-			char:     parts[3],
-			password: parts[4],
+		if err != nil {
+			return -1, err
 		}
 
-		if goodPassword(policy) {
-			count += 1
+		switch v[0] {
+			case "forward":
+				horizontal += num
+			case "backward":
+				horizontal -= num
+			case "up":
+				depth -= num
+			case "down":
+				depth += num
 		}
-	})
-
-	return count, nil
-}
-
-type Policy2 struct {
-	first, second  int
-	char, password string
-}
-
-func goodPassword2(pass Policy2) bool {
-	first := string(pass.password[pass.first-1]) == pass.char
-	second := string(pass.password[pass.second-1]) == pass.char
-
-	if first && second {
-		return false
 	}
 
-	return first || second
+	return horizontal * depth, nil
 }
 
 func PartTwo(vals []string) (int, error) {
-	count := 0
+	horizontal := 0
+	depth := 0
+	aim := 0
 
-	WithMatchedStrings(vals, func(parts []string) {
-		first, _ := strconv.Atoi(parts[1])
-		second, _ := strconv.Atoi(parts[2])
+	for _, val := range vals {
+		v := strings.Fields(val)
+		num, err := strconv.Atoi(v[1])
 
-		policy := Policy2{
-			first:    first,
-			second:   second,
-			char:     parts[3],
-			password: parts[4],
+		if err != nil {
+			return -1, err
 		}
 
-		if goodPassword2(policy) {
-			count += 1
+		switch v[0] {
+			case "forward":
+				horizontal += num
+				depth += num * aim
+			case "backward":
+				horizontal -= num
+				depth -= num * aim
+			case "up":
+				aim -= num
+			case "down":
+				aim += num
 		}
-	})
+	}
 
-	return count, nil
+	return horizontal * depth, nil
 }
 
 func main() {

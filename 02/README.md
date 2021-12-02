@@ -1,37 +1,53 @@
---- Day 2: Password Philosophy ---
+--- Day 2: Dive! ---
+Now, you need to figure out how to pilot this thing.
 
-Your flight departs in a few days from the coastal airport; the easiest way down to the coast from here is via toboggan.
+It seems like the submarine can take a series of commands like forward 1, down 2, or up 3:
 
-The shopkeeper at the North Pole Toboggan Rental Shop is having a bad day. "Something's wrong with our computers; we can't log in!" You ask if you can take a look.
+forward X increases the horizontal position by X units.
+down X increases the depth by X units.
+up X decreases the depth by X units.
+Note that since you're on a submarine, down and up affect your depth, and so they have the opposite result of what you might expect.
 
-Their password database seems to be a little corrupted: some of the passwords wouldn't have been allowed by the Official Toboggan Corporate Policy that was in effect when they were chosen.
+The submarine seems to already have a planned course (your puzzle input). You should probably figure out where it's going. For example:
 
-To try to debug the problem, they have created a list (your puzzle input) of passwords (according to the corrupted database) and the corporate policy when that password was set.
+forward 5
+down 5
+forward 8
+up 3
+down 8
+forward 2
+Your horizontal position and depth both start at 0. The steps above would then modify them as follows:
 
-For example, suppose you have the following list:
+forward 5 adds 5 to your horizontal position, a total of 5.
+down 5 adds 5 to your depth, resulting in a value of 5.
+forward 8 adds 8 to your horizontal position, a total of 13.
+up 3 decreases your depth by 3, resulting in a value of 2.
+down 8 adds 8 to your depth, resulting in a value of 10.
+forward 2 adds 2 to your horizontal position, a total of 15.
+After following these instructions, you would have a horizontal position of 15 and a depth of 10. (Multiplying these together produces 150.)
 
-1-3 a: abcde
-1-3 b: cdefg
-2-9 c: ccccccccc
-
-Each line gives the password policy and then the password. The password policy indicates the lowest and highest number of times a given letter must appear for the password to be valid. For example, 1-3 a means that the password must contain a at least 1 time and at most 3 times.
-
-In the above example, 2 passwords are valid. The middle password, cdefg, is not; it contains no instances of b, but needs at least 1. The first and third passwords are valid: they contain one a or nine c, both within the limits of their respective policies.
-
-How many passwords are valid according to their policies?
+Calculate the horizontal position and depth you would have after following the planned course. What do you get if you multiply your final horizontal position by your final depth?
 
 --- Part Two ---
+Based on your calculations, the planned course doesn't seem to make any sense. You find the submarine manual and discover that the process is actually slightly more complicated.
 
-While it appears you validated the passwords correctly, they don't seem to be what the Official Toboggan Corporate Authentication System is expecting.
+In addition to horizontal position and depth, you'll also need to track a third value, aim, which also starts at 0. The commands also mean something entirely different than you first thought:
 
-The shopkeeper suddenly realizes that he just accidentally explained the password policy rules from his old job at the sled rental place down the street! The Official Toboggan Corporate Policy actually works a little differently.
+down X increases your aim by X units.
+up X decreases your aim by X units.
+forward X does two things:
+It increases your horizontal position by X units.
+It increases your depth by your aim multiplied by X.
+Again note that since you're on a submarine, down and up do the opposite of what you might expect: "down" means aiming in the positive direction.
 
-Each policy actually describes two positions in the password, where 1 means the first character, 2 means the second character, and so on. (Be careful; Toboggan Corporate Policies have no concept of "index zero"!) Exactly one of these positions must contain the given letter. Other occurrences of the letter are irrelevant for the purposes of policy enforcement.
+Now, the above example does something different:
 
-Given the same example list from above:
+forward 5 adds 5 to your horizontal position, a total of 5. Because your aim is 0, your depth does not change.
+down 5 adds 5 to your aim, resulting in a value of 5.
+forward 8 adds 8 to your horizontal position, a total of 13. Because your aim is 5, your depth increases by 8*5=40.
+up 3 decreases your aim by 3, resulting in a value of 2.
+down 8 adds 8 to your aim, resulting in a value of 10.
+forward 2 adds 2 to your horizontal position, a total of 15. Because your aim is 10, your depth increases by 2*10=20 to a total of 60.
+After following these new instructions, you would have a horizontal position of 15 and a depth of 60. (Multiplying these produces 900.)
 
-    1-3 a: abcde is valid: position 1 contains a and position 3 does not.
-    1-3 b: cdefg is invalid: neither position 1 nor position 3 contains b.
-    2-9 c: ccccccccc is invalid: both position 2 and position 9 contain c.
-
-How many passwords are valid according to the new interpretation of the policies?
+Using this new interpretation of the commands, calculate the horizontal position and depth you would have after following the planned course. What do you get if you multiply your final horizontal position by your final depth?
