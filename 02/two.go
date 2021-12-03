@@ -9,28 +9,40 @@ import (
 	"bozdoz.com/aoc-2021/utils"
 )
 
-func PartOne(vals []string) (int, error) {
-	horizontal := 0
-	depth := 0
-
+func withVals(vals []string, fnc func (direction string, val int)) error {
 	for _, val := range vals {
 		v := strings.Fields(val)
 		num, err := strconv.Atoi(v[1])
 
 		if err != nil {
-			return -1, err
+		 	return err
 		}
 
-		switch v[0] {
+		fnc(v[0], num)
+	}
+
+	return nil
+}
+
+func PartOne(vals []string) (int, error) {
+	horizontal := 0
+	depth := 0
+
+	err := withVals(vals, func (direction string, val int) {
+		switch direction {
 			case "forward":
-				horizontal += num
+				horizontal += val
 			case "backward":
-				horizontal -= num
+				horizontal -= val
 			case "up":
-				depth -= num
+				depth -= val
 			case "down":
-				depth += num
+				depth += val
 		}
+	})
+
+	if err != nil {
+		return -1, err
 	}
 
 	return horizontal * depth, nil
@@ -41,26 +53,23 @@ func PartTwo(vals []string) (int, error) {
 	depth := 0
 	aim := 0
 
-	for _, val := range vals {
-		v := strings.Fields(val)
-		num, err := strconv.Atoi(v[1])
-
-		if err != nil {
-			return -1, err
-		}
-
-		switch v[0] {
+	err := withVals(vals, func (direction string, val int) {
+		switch direction {
 			case "forward":
-				horizontal += num
-				depth += num * aim
+				horizontal += val
+				depth += val * aim
 			case "backward":
-				horizontal -= num
-				depth -= num * aim
+				horizontal -= val
+				depth -= val * aim
 			case "up":
-				aim -= num
+				aim -= val
 			case "down":
-				aim += num
+				aim += val
 		}
+	})
+
+	if err != nil {
+		return -1, err
 	}
 
 	return horizontal * depth, nil
