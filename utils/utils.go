@@ -45,3 +45,11 @@ func LoadInts(filename string) []int {
 
 	return nums
 }
+
+func Sum(nums ...int) (s int) {
+	for _, val := range nums {
+		s += val
+	}
+
+	return
+}

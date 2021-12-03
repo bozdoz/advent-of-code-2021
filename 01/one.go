@@ -21,16 +21,6 @@ func PartOne(nums []int) (int, error) {
 	return count, nil
 }
 
-func sum(nums []int) int {
-	s := 0
-
-	for _, val := range nums {
-		s += val
-	}
-
-	return s
-}
-
 func PartTwo(nums []int) (int, error) {
 	measurement := 3
 	wins := [][]int{}
@@ -40,10 +30,10 @@ func PartTwo(nums []int) (int, error) {
 		wins = append(wins, nums[i:i+measurement])
 	}
 
-	last := sum(wins[0])
+	last := utils.Sum(wins[0]...)
 	count := 0
 	for _, arr := range wins[1:] {
-		val := sum(arr)
+		val := utils.Sum(arr...)
 		if val > last {
 			count += 1
 		}
