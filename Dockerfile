@@ -4,4 +4,4 @@ WORKDIR /app
 
 COPY . .
 
-CMD ["go", "test", "./..."]
+CMD ["./test.sh"]
