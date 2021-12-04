@@ -2,7 +2,11 @@
 
 ### How to use
 
-Not sure yet.  Maybe cd into your day folder and `go run`, or maybe better to try `go test`
+Test: `go test ./...`
+
+Run: `cd 03 && go run three.go partone.txt`
+
+New: `./createDay.sh 04 four`
 
 ### Dev environment
 
