@@ -1,11 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
-	"errors"
-	
+
 	"bozdoz.com/aoc-2021/utils"
 )
 
@@ -72,7 +72,7 @@ func PartOne(lines []string) (int, error) {
 
 // TODO: how on earth can this be more generic?
 // might also be a utility function
-func Filter(arr []string, fnc func (val string, i int) bool) (out []string) {
+func Filter(arr []string, fnc func(val string, i int) bool) (out []string) {
 	for i, val := range arr {
 		if fnc(val, i) {
 			out = append(out, val)
@@ -84,23 +84,19 @@ func Filter(arr []string, fnc func (val string, i int) bool) (out []string) {
 
 func weedOutBinaries(arr []string, check int) (string, error) {
 	copy := arr[:]
-	bit := 0
-	for {
+
+	for bit := 0; bit < len(arr); bit++ {
 		if len(copy) == 1 {
 			return copy[0], nil
 		}
-		
-		if bit == len(arr) - 1 {
-			return "", errors.New("ran out of bits!")
-		}
-		
+
 		transposed := transpose(copy)
 		section := transposed[bit]
-		
+
 		// TODO: why is division so difficult?
 		half := float64(len(copy)) / float64(2)
 		sum := float64(utils.Sum(section...))
-		
+
 		// keep is either 1 or 0
 		keep := check
 		if sum < half {
@@ -115,14 +111,12 @@ func weedOutBinaries(arr []string, check int) (string, error) {
 			}
 		}
 
-		copy = Filter(copy, func (val string, i int) bool {
+		copy = Filter(copy, func(val string, i int) bool {
 			return indices[i] || false
 		})
-
-		bit += 1
 	}
 
-	return "", errors.New("couldn't figure out how to weed out the binaries")
+	return "", errors.New("could not weed out binaries")
 }
 
 // TODO: so many if err != nil checks
