@@ -54,7 +54,7 @@ func formatBoards(bulk []string) (boards []Bingo, err error) {
 
 type Scored [5][5]bool
 
-func all(arr [5]bool) bool {
+func checkrow(arr [5]bool) bool {
 	for _, val := range arr {
 		if !val {
 			return false
@@ -88,8 +88,7 @@ boards:
 					(*scoreboards)[b][r][c] = true
 					scoreboard := (*scoreboards)[b]
 
-					// check row & col
-					if checkcol(scoreboard, c) || all(scoreboard[r]) {
+					if checkcol(scoreboard, c) || checkrow(scoreboard[r]) {
 						// winner winner
 						winners[b] = true
 					}
