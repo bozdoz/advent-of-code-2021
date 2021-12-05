@@ -70,9 +70,7 @@ func PartOne(lines []string) (int, error) {
 	return int(gammaint * epsilonint), nil
 }
 
-// TODO: how on earth can this be more generic?
-// might also be a utility function
-func Filter(arr []string, fnc func(val string, i int) bool) (out []string) {
+func filter(arr []string, fnc func(val string, i int) bool) (out []string) {
 	for i, val := range arr {
 		if fnc(val, i) {
 			out = append(out, val)
@@ -111,7 +109,7 @@ func weedOutBinaries(arr []string, check int) (string, error) {
 			}
 		}
 
-		copy = Filter(copy, func(val string, i int) bool {
+		copy = filter(copy, func(val string, i int) bool {
 			return indices[i] || false
 		})
 	}
