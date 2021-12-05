@@ -1,5 +1,23 @@
 # What Am I Learning Each Day?
 
+### Day 5
+
+First time doing OOP with types and type methods.  I think I wanted the load function to calculate the space at the same time as loading the lines, so maybe it made sense as a method instead of a pure function. First time using fmt.Fscanf.
+
+Today seemed straight forward, but maybe because I've done so much work with 2d space.
+
+It wasn't apparent that I needed to calculate the 2d space, given the example was a 10x10 grid, but I figured I should just to be safe, and I'm glad I accounted for it.
+
+I used a 1d grid to hold the space, because I wasn't sure how to fill an empty 2d grid with the proper size.  Maybe a for loop?
+
+```go
+g.space = make([][]int, maxY+1)
+
+for i := range g.space {
+  g.space[i] = make([]int, maxX + 1)
+}
+```
+
 ### Day 4
 
 Finally created run.sh and test.sh which accepts env vars to test individual directories
