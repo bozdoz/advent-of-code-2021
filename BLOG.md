@@ -18,6 +18,37 @@ for i := range g.space {
 }
 ```
 
+Could have also done a `map`, I think:
+
+```go
+g.space = map[int]map[int]int{}
+
+if g.space[0] == nil {
+  g.space[0] = map[int]int{}
+}
+```
+
+Discovered a better way to incrementally test the app: use a `map[int][int]` for each part's answers, and check for `ok` in the tests:
+
+```go
+var answers = map[int]int{
+	1: 5,
+	2: 12,
+}
+
+func TestExampleOne(t *testing.T) {
+	expected, ok := answers[1]
+
+  // Especially helpful in PartTwo, which always fails when I'm only 
+  // testing PartOne!  Now it will just not run the full test if I
+  // don't yet give it an expected answer.
+	if !ok {
+		return
+	}
+  // ...
+}
+```
+
 ### Day 4
 
 Finally created run.sh and test.sh which accepts env vars to test individual directories

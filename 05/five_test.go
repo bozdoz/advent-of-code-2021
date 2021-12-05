@@ -6,9 +6,23 @@ import (
 	"bozdoz.com/aoc-2021/utils"
 )
 
+// fill in the answers for each part (as they come)
+var answers = map[int]int{
+	1: 5,
+	2: 12,
+}
+
+// different puzzles require different file loaders
+var fileLoader = utils.LoadFile
+
 func TestExampleOne(t *testing.T) {
-	expected := 5
-	vals := utils.LoadFile("example.txt")
+	expected, ok := answers[1]
+
+	if !ok {
+		return
+	}
+
+	vals := fileLoader("example.txt")
 	val, err := PartOne(vals)
 
 	if err != nil {
@@ -23,8 +37,13 @@ func TestExampleOne(t *testing.T) {
 }
 
 func TestExampleTwo(t *testing.T) {
-	expected := 12
-	vals := utils.LoadFile("example.txt")
+	expected, ok := answers[2]
+
+	if !ok {
+		return
+	}
+
+	vals := fileLoader("example.txt")
 	val, err := PartTwo(vals)
 
 	if err != nil {
