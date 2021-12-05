@@ -78,6 +78,8 @@ func checkcol(board Scored, col int) bool {
 func checkScoreBoards(boards []Bingo, scoreboards *[]Scored, check int) map[int]bool {
 	winners := make(map[int]bool)
 
+	// label to skip to the next board
+boards:
 	for b, board := range boards {
 		for r, row := range board {
 			for c, val := range row {
@@ -91,6 +93,9 @@ func checkScoreBoards(boards []Bingo, scoreboards *[]Scored, check int) map[int]
 						// winner winner
 						winners[b] = true
 					}
+
+					// skip the rest of the checks for this board
+					continue boards
 				}
 			}
 		}
