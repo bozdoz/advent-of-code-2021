@@ -13,6 +13,5 @@ if [ ! -d $day ]; then
 fi
 
 cd $day 
-gofile=$(ls | grep .go | grep -v test.go)
 
-go run $gofile
+go run .

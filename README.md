@@ -4,7 +4,7 @@
 
 Test: `docker run --rm $(docker build -q .)`
 
-Run: `docker run --rm $(docker build -q .) sh -c "cd 03 && go run three.go partone.txt"`
+Run: `docker run --rm $(docker build -q .) ./run.sh 03`
 
 New: `./createDay.sh 04 four`
 
