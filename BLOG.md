@@ -1,5 +1,55 @@
 # What Am I Learning Each Day?
 
+### Day 6
+
+You can run a go module with `go run .` and it will just find the file you want to run (maybe it will run all of them)
+
+Ran into issues casting `[9]int` as `[]int`, and not sure how to get around it to use `utils.Sum`.   I thought about changing the data structure to just use []int and initialize with `make([]int, 9)`, but it seemed annoying to do that in every place that needed it initialized.
+
+On the initial run, I used an awful data structure to run the code (exponentially growing array).
+
+Assuming I should give up, I reached out to thatguygriff who said he had to redo his.  So, fine, I changed the logic to just keep track of state of counters (0 - 9) and just a count of counters `[9]int`.  Worked great.  Didn't crash the compiler.
+
+I thought against using custom object methods, and I initially tried passing state by reference, but found it difficult to pass it through two functions; also the current logic might be difficult to maintain, since the day incrementer manages two states:
+
+```go
+// incrementDay decrements fish counters
+func incrementDay(state State) (newState State) {
+	for i, val := range state {
+		if i == 0 {
+			// 0-day counters are both moved to 8 and copied to 6
+			newState[8] = val
+			newState[6] += val
+		} else {
+			// move counter value down a day
+			newState[i-1] += val
+		}
+	}
+
+	return
+}
+```
+
+if I did this with one state, I could try a different pattern:
+
+```go
+// incrementDay decrements fish counters
+func incrementDay(state *State) {
+	temp := state[0]
+
+	// moves all counters to previous index
+	for i, val := range state[1:] {
+		state[i] = val
+	}
+
+	// 0-day counters are both moved to 8 and copied to 6
+	state[8] = temp
+	state[6] += temp
+}
+```
+
+I have no idea which is better 🤷‍♀️
+
 ### Day 5
 
 First time doing OOP with types and type methods.  I think I wanted the load function to calculate the space at the same time as loading the lines, so maybe it made sense as a method instead of a pure function. First time using fmt.Fscanf.
