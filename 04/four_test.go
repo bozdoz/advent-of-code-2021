@@ -2,11 +2,13 @@ package main
 
 import (
 	"testing"
+
+	"bozdoz.com/aoc-2021/utils"
 )
 
 func TestExampleOne(t *testing.T) {
 	expected := 4512
-	vals := LoadAsString("example.txt")
+	vals := utils.LoadAsString("example.txt")
 	val, err := PartOne(vals)
 
 	if err != nil {
@@ -22,7 +24,7 @@ func TestExampleOne(t *testing.T) {
 
 func TestExampleTwo(t *testing.T) {
 	expected := 1924
-	vals := LoadAsString("example.txt")
+	vals := utils.LoadAsString("example.txt")
 	val, err := PartTwo(vals)
 
 	if err != nil {
