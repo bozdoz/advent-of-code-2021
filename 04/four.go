@@ -2,21 +2,11 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"strconv"
 	"strings"
+
+	"bozdoz.com/aoc-2021/utils"
 )
-
-// maybe utility
-func LoadAsString(filename string) string {
-	content, err := ioutil.ReadFile(filename)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return string(content)
-}
 
 type Bingo [5][5]int
 
@@ -219,7 +209,7 @@ func main() {
 	// safe to assume
 	filename := "input.txt"
 
-	vals := LoadAsString(filename)
+	vals := utils.LoadAsString(filename)
 
 	answer, err := PartOne(vals)
 

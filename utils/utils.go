@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bufio"
+	"io/ioutil"
 	"os"
 	"strconv"
 )
@@ -44,6 +45,16 @@ func LoadInts(filename string) []int {
 	}
 
 	return nums
+}
+
+func LoadAsString(filename string) string {
+	content, err := ioutil.ReadFile(filename)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return string(content)
 }
 
 func Sum(nums ...int) (s int) {
