@@ -1,5 +1,17 @@
 # What Am I Learning Each Day?
 
+### Day 7
+
+Wrote some stats functions which I thought would help solve the problem, if not outright solve it.  Saved them in utils: `Mean`, `Median`, `Mode`, `Stdev`.
+
+Decided to just iterate all possible solutions and pick the best.  I did this by iterating the values as unique sorted sets.
+
+Realized I could probably pick the last descending value (i.e. the values should continue to go down until the minimum value is reached and the values go up again).  I couldn't imagine a scenario where the values would again decrease (in a sorted set).  So that's the logic I went with.
+
+In part one I only iterated the data provided.  But seeing as the solution to part two was a number/position that was not present in the puzzle input, I decided I needed to iterate from the min value to max value by 1 step.
+
+So far the most boring puzzle solution...
+
 ### Day 6
 
 You can run a go module with `go run .` and it will just find the file you want to run (maybe it will run all of them)
