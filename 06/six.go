@@ -47,10 +47,8 @@ func incrementDay(state *State) {
 }
 
 func fastforward(state *State, days int) {
-	next := 0
-	for next < days {
+	for i := 0; i < days; i++ {
 		incrementDay(state)
-		next++
 	}
 }
 
@@ -59,12 +57,7 @@ func PartOne(content string) (output int, err error) {
 
 	fastforward(&state, 80)
 
-	// TODO: can't use utils.Sum because [9]int is not []int!!?
-	for _, val := range state {
-		output += val
-	}
-
-	return
+	return utils.Sum(state[:]...), err
 }
 
 func PartTwo(content string) (output int, err error) {
@@ -72,12 +65,7 @@ func PartTwo(content string) (output int, err error) {
 
 	fastforward(&state, 256)
 
-	// TODO: can't use utils.Sum because [9]int is not []int!!?
-	for _, val := range state {
-		output += val
-	}
-
-	return
+	return utils.Sum(state[:]...), err
 }
 
 func main() {

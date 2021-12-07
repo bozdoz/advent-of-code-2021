@@ -4,7 +4,11 @@
 
 You can run a go module with `go run .` and it will just find the file you want to run (maybe it will run all of them)
 
-Ran into issues casting `[9]int` as `[]int`, and not sure how to get around it to use `utils.Sum`.   I thought about changing the data structure to just use []int and initialize with `make([]int, 9)`, but it seemed annoying to do that in every place that needed it initialized.
+Ran into issues casting `[9]int` as `[]int`, and not sure how to get around it to use `utils.Sum`.   I thought about changing the data structure to just use []int and initialize with `make([]int, 9)`, but it seemed annoying to do that in every place that needed it initialized. (**edit** someone on r/adventofcode correctly pointed out that I could pass a slice of `state[:]` to `utils.Sum`)
+
+```go
+return utils.Sum(state[:]...), err
+```
 
 On the initial run, I used an awful data structure to run the code (exponentially growing array).
 
