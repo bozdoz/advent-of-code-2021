@@ -1,5 +1,31 @@
 # What Am I Learning Each Day?
 
+### Day 8
+
+Added string sorting.  Tried to do some kind of string intersection to figure out the values, but the functions are probably lacking.  I saw a bunch of errors and warnings, but kind of let them be for today.  
+
+Part one was awfully boring. 
+
+Part two could have been fun.  I wish I had more time to clean it up.
+
+I did object-oriented because I wanted to keep track of two datasets: the segments and the digits
+
+I ran into this issue, where it was just a pain to assign to a nested struct:
+
+```go
+// kind of a mess working around UnaddressableFieldAssign
+//
+// https://pkg.go.dev/golang.org/x/tools/internal/typesinternal?utm_source=gopls#UnaddressableFieldAssign
+func (entry *Entry) setPatternValue(pattern string, value int) {
+	pat := entry.patterns[pattern]
+	pat.value = value
+	entry.patterns[pattern] = pat
+}
+```
+
+I ignored all errors, had to use the test debugger, and am generally unhappy with the naming/logic of some functions.  Brute force!
+
+
 ### Day 7
 
 Wrote some stats functions which I thought would help solve the problem, if not outright solve it.  Saved them in utils: `Mean`, `Median`, `Mode`, `Stdev`.
