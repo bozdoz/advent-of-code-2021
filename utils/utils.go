@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -141,4 +142,27 @@ func Stdev(vals []int) float64 {
 	}
 
 	return math.Sqrt(sum / float64(n))
+}
+
+// https://golangbyexample.com/sort-string-golang/
+type sortRuneString []rune
+
+func (s sortRuneString) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s sortRuneString) Less(i, j int) bool {
+	return s[i] < s[j]
+}
+
+func (s sortRuneString) Len() int {
+	return len(s)
+}
+
+func SortString(str string) string {
+	arr := []rune(str)
+
+	sort.Sort(sortRuneString(arr))
+
+	return string(arr)
 }
