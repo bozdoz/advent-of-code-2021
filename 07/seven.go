@@ -67,6 +67,7 @@ func PartOne(content []int) (minfuel int, err error) {
 
 // adds all iterations of numbers by decrementing by 1:
 // example: 4 = 4 + 3 + 2 + 1
+// update: Should have been dist * (dist + 1) / 2
 func getCumulativeFuel(dist int) (fuel int) {
 	for ; dist > 0; dist-- {
 		fuel += dist
