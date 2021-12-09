@@ -26,97 +26,60 @@ func PartOne(lines []string) (output int, err error) {
 	return counts[2] + counts[4] + counts[3] + counts[7], nil
 }
 
-type Pattern struct {
-	value, length int
-}
+const (
+	unknown = -1
+)
+
+type Pattern string
 
 type Entry struct {
-	patterns map[string]Pattern
-	digits   [4]string
+	patterns map[Pattern]int
+	digits   [4]Pattern
 }
 
-func parseLine(line string) (entry Entry) {
+func newPattern(p string) Pattern {
+	p = utils.SortString(p)
+
+	return Pattern(p)
+}
+
+func newEntry(line string) (entry Entry) {
 	parts := strings.Split(line, " | ")
 
 	// why do I always have to initialize this "nil map"
-	entry.patterns = map[string]Pattern{}
+	entry.patterns = map[Pattern]int{}
 
 	for _, pattern := range strings.Fields(parts[0]) {
-		// -1 is a mystery number
-		sorted := utils.SortString(pattern)
-		entry.patterns[sorted] = Pattern{
-			length: len(sorted),
-		}
+		entry.patterns[newPattern(pattern)] = unknown
 	}
 
 	for i, code := range strings.Fields(parts[1]) {
-		sorted := utils.SortString(code)
-		entry.digits[i] = sorted
+		entry.digits[i] = newPattern(code)
 	}
 
 	return
 }
 
-// naive
-func intersection(a, b string) string {
-	achars := []rune(a)
-	bchars := []rune(b)
-	chars := []rune{}
-
-	for _, x := range achars {
-		for _, y := range bchars {
+// all parts of b are inside of a
+func (a *Pattern) contains(b Pattern) bool {
+outer:
+	for _, x := range b {
+		for _, y := range *a {
 			if x == y {
-				chars = append(chars, x)
+				continue outer
 			}
 		}
+		return false
 	}
 
-	return string(chars)
-}
-
-// naive
-func contains(a, b string) bool {
-	return len(intersection(a, b)) == len(a)
-}
-
-func (entry *Entry) getPatternByValue(value int) string {
-	for pattern, pat := range entry.patterns {
-		if pat.value == value {
-			return pattern
-		}
-	}
-
-	panic(fmt.Sprintf("no pattern for %d", value))
-}
-
-func (entry *Entry) getPatternsByLength(length int) (patterns []string) {
-	for pattern, pat := range entry.patterns {
-		if pat.length == length {
-			patterns = append(patterns, pattern)
-		}
-	}
-
-	if len(patterns) == 0 {
-		panic(fmt.Sprintf("no patterns with length %d", length))
-	}
-
-	return
-}
-
-// kind of a mess working around UnaddressableFieldAssign
-//
-// https://pkg.go.dev/golang.org/x/tools/internal/typesinternal?utm_source=gopls#UnaddressableFieldAssign
-func (entry *Entry) setPatternValue(pattern string, value int) {
-	pat := entry.patterns[pattern]
-	pat.value = value
-	entry.patterns[pattern] = pat
+	return true
 }
 
 // if any candidates contains all of pattern, then assign it the value
-func (entry *Entry) deriveThroughIntersection(candidates []string, pattern string, value int) string {
+func (entry *Entry) deriveThroughIntersection(candidates []Pattern, pattern Pattern, value int) Pattern {
 	for _, candidate := range candidates {
-		if contains(pattern, candidate) {
-			entry.setPatternValue(candidate, value)
+		if candidate.contains(pattern) {
+			entry.patterns[candidate] = value
 
 			return candidate
 		}
@@ -124,9 +87,12 @@ func (entry *Entry) deriveThroughIntersection(candidates []string, pattern strin
 	panic(fmt.Sprintf("pattern not found: %s", pattern))
 }
 
-func removeFromStringArray(arr []string, value string) (out []string) {
+// created purely to make the remove method
+type PatternArr []Pattern
+
+func (arr PatternArr) remove(pattern Pattern) (out PatternArr) {
 	for _, val := range arr {
-		if val != value {
+		if val != pattern {
 			out = append(out, val)
 		}
 	}
@@ -135,77 +101,84 @@ func removeFromStringArray(arr []string, value string) (out []string) {
 }
 
 func (entry *Entry) derivePatterns() {
-	// givens: 1, 4, 7, 8
+	// save one and four because they are used to get other values
+	var one, four Pattern
+	var lenfive, lensix PatternArr
 
-	for pattern, pat := range entry.patterns {
-		switch pat.length {
+	// givens: 1, 4, 7, 8
+	for pattern := range entry.patterns {
+		val := unknown
+		switch len(pattern) {
 		case 2:
-			pat.value = 1
+			val = 1
+			one = pattern
 		case 3:
-			pat.value = 7
+			val = 7
 		case 4:
-			pat.value = 4
+			val = 4
+			four = pattern
 		case 5:
 			// 2, 3, 5
-			pat.value = -1
+			lenfive = append(lenfive, pattern)
 		case 6:
 			// 0, 6, 9
-			pat.value = -1
+			lensix = append(lensix, pattern)
 		case 7:
-			pat.value = 8
+			val = 8
 		}
 
-		entry.patterns[pattern] = pat
+		entry.patterns[pattern] = val
 	}
 
 	// 2, 3 & 5 are all of length 5, but only 3 includes all segments from 1
-	lenfive := entry.getPatternsByLength(5)
-	matched := entry.deriveThroughIntersection(lenfive, entry.getPatternByValue(1), 3)
-	lenfive = removeFromStringArray(lenfive, matched)
+	matched := entry.deriveThroughIntersection(lenfive, one, 3)
+	lenfive = lenfive.remove(matched)
 
 	// 9 contains 4
-	lensix := entry.getPatternsByLength(6)
-	matched = entry.deriveThroughIntersection(lensix, entry.getPatternByValue(4), 9)
-	lensix = removeFromStringArray(lensix, matched)
+	matched = entry.deriveThroughIntersection(lensix, four, 9)
+	lensix = lensix.remove(matched)
 
 	// 0 contains 1
-	matched = entry.deriveThroughIntersection(lensix, entry.getPatternByValue(1), 0)
-	lensix = removeFromStringArray(lensix, matched)
+	matched = entry.deriveThroughIntersection(lensix, one, 0)
 
 	// 6 remains
-	six := lensix[0]
-	entry.setPatternValue(six, 6)
+	six := lensix.remove(matched)[0]
+	entry.patterns[six] = 6
 
 	// 2 & 5 are left: 6 contains 5
 	for _, candidate := range lenfive {
 		// reversed from above
-		if contains(candidate, six) {
-			entry.setPatternValue(candidate, 5)
+		if six.contains(candidate) {
+			entry.patterns[candidate] = 5
 		} else {
 			// only 2 remains
-			entry.setPatternValue(candidate, 2)
+			entry.patterns[candidate] = 2
 		}
 	}
 }
 
 // we concatenate each entry
-func (entry *Entry) concatDigits() int {
+func (entry *Entry) concatDigits() (int, error) {
 	sum := ""
 	for _, pattern := range entry.digits {
-		sum += strconv.Itoa(entry.patterns[pattern].value)
+		sum += strconv.Itoa(entry.patterns[pattern])
 	}
 
-	out, _ := strconv.Atoi(sum)
-
-	return out
+	return strconv.Atoi(sum)
 }
 
 func PartTwo(lines []string) (output int, err error) {
 	for _, line := range lines {
-		entry := parseLine(line)
+		entry := newEntry(line)
 		entry.derivePatterns()
 
-		output += entry.concatDigits()
+		sum, err := entry.concatDigits()
+
+		if err != nil {
+			return output, err
+		}
+
+		output += sum
 	}
 
 	return
