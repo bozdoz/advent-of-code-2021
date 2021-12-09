@@ -25,6 +25,54 @@ func (entry *Entry) setPatternValue(pattern string, value int) {
 
 I ignored all errors, had to use the test debugger, and am generally unhappy with the naming/logic of some functions.  Brute force!
 
+**Update**
+
+After refactor I had an easier time creating custom types and methods.  I think it made it a little more readable and consistent:
+
+```go
+type Pattern string
+
+func newPattern(p string) Pattern {
+	p = utils.SortString(p)
+
+	return Pattern(p)
+}
+
+// all parts of b are inside of a
+func (a *Pattern) contains(b Pattern) bool {
+outer:
+	for _, x := range b {
+		for _, y := range *a {
+			if x == y {
+				continue outer
+			}
+		}
+		return false
+	}
+
+	return true
+}
+```
+
+After that I had an easier time calling `pattern.contains(candidate)`. And then I made an alias for []Pattern:
+
+```go
+// created purely to make the remove method
+type PatternArr []Pattern
+
+func (arr PatternArr) remove(pattern Pattern) (out PatternArr) {
+	for _, val := range arr {
+		if val != pattern {
+			out = append(out, val)
+		}
+	}
+
+	return
+}
+```
+
+Now I can call `remaining = remaining.remove(pattern)`
+
 
 ### Day 7
 
