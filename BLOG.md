@@ -1,5 +1,64 @@
 # What Am I Learning Each Day?
 
+### Day 9
+
+Think I'm getting puzzle fatigue.  Kind of fun today as I've never done any path-tracing, or whatever that's called algorithms before.  I think what I did with the search function worked fine enough.  Only did one pass, so I haven't critiqued my own work yet.  I think the separation of concerns are mostly there.  Much better than yesterday's first pass anyway.
+
+```go
+func (b *basin) search(r, c int) {
+	// we only search cells we know are within the basin
+	if b.included[r] == nil {
+		b.included[r] = make(map[int]bool, b.cols)
+	}
+
+	b.included[r][c] = true
+
+	neighbours, err := b.heights.findNeighbours(r, c)
+
+	if err != nil {
+		panic(fmt.Sprintf("failed to find neighbours for %d, %d", r, c))
+	}
+
+	for _, coords := range neighbours {
+		r, c = coords[0], coords[1]
+		included := b.isIncluded(r, c)
+
+		if included || b.heights[r][c] == 9 {
+			continue
+		}
+
+		// search again!
+		b.search(r, c)
+	}
+}
+```
+
+Did some panicking.  Maybe that's appropriate for these advent challenges.  Why bother setting up full error catching for a non-production app?
+
+IDE helped me simplify a type, from:
+
+```go
+// go helped fix this previously redundant type
+indices := [][]int{
+	[]int{col, row - 1},
+	[]int{col, row + 1},
+	[]int{col - 1, row},
+	[]int{col + 1, row},
+}
+```
+
+To: 
+
+```go
+// go helped fix this previously redundant type
+indices := [][]int{
+	{col, row - 1},
+	{col, row + 1},
+	{col - 1, row},
+	{col + 1, row},
+}
+```
+
 ### Day 8
 
 Added string sorting.  Tried to do some kind of string intersection to figure out the values, but the functions are probably lacking.  I saw a bunch of errors and warnings, but kind of let them be for today.  

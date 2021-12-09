@@ -2,7 +2,7 @@
 
 NEW_DAY=$1
 NEW_DAY_NAME=$2
-TEMPLATE=${3:-'01'}
+TEMPLATE=${3:-'09'}
 
 if [ -z $NEW_DAY ]; then
   echo "Provide ## for new day directory"
