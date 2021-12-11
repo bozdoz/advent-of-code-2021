@@ -51,3 +51,15 @@ func TestExampleTwo(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func BenchmarkGridValue(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		PartTwoValue(vals)
+	}
+}
+
+func BenchmarkGridPointer(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		PartTwo(vals)
+	}
+}

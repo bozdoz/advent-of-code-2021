@@ -83,6 +83,41 @@ func newGrid(data []string) (grid *Grid) {
 }
 ```
 
+**Update**
+
+I found [this link](https://stackoverflow.com/a/44827234/488784) which suggests returning a value duplicates the memory allocation; though [another answer](https://medium.com/@philpearl/bad-go-pointer-returns-340f2da8289) suggests that returning pointers have more overhead if the data is small and/or short-lived
+
+> In the pointer case the memory has to be allocated on the heap, which will take about 25ns, then the data is set up (which should take about the same time in both cases), then the pointer is written to the stack to return the struct to the caller. In the value case there’s no allocation, but the whole struct has to be copied onto the stack to return it to the caller.
+
+> If the lifetime of the returned data was longer the results could be very different. But perhaps this is an indication that returning pointers to structs that have a short lifetime is bad Go.
+
+I don't think the data structure is very big or long-lived, so maybe returning a pointer for `newGrid` is a mistake.  And maybe not!? 🤷‍♀️
+
+So, I thought let's benchmark it.  I copy-pasted the `newGrid` function and made one return a value, and the other return a pointer.   Created my first two benchmark tests:
+
+```go
+func BenchmarkGridValue(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		PartTwo(vals)
+	}
+}
+
+func BenchmarkGridPointer(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		PartTwoPointer(vals)
+	}
+}
+```
+
+```bash
+> go test -bench BenchmarkGrid
+
+BenchmarkGridValue-2                2239            519795 ns/op
+BenchmarkGridPointer-2              2103            518339 ns/op
+```
+
+So I guess they are about equal.
+
 ### Day 10
 
 Definitely puzzle fatigue.

@@ -46,17 +46,33 @@ func (grid *Grid) String() (output string) {
 
 // custom string representation
 func (cell *Cell) String() string {
-	if cell.energy > maxEnergy {
-		// flashing
-		return "x"
-	}
-
-	return fmt.Sprintf("%d", cell.energy)
+	return fmt.Sprint(cell.energy)
 }
 
-func newGrid(data []string) *Grid {
+// this is the constructor-like function we are using
+func newGridPointer(data []string) *Grid {
 	grid := &Grid{}
 
+	for r, line := range data {
+		chars := strings.Split(line, "")
+		for c, char := range chars {
+			num, err := strconv.Atoi(char)
+
+			if err != nil {
+				panic("could not convert char to num in grid")
+			}
+
+			grid.cells[r][c] = &Cell{energy: num}
+		}
+	}
+
+	grid.updateNeighbours()
+
+	return grid
+}
+
+// IGNORE: this was added just for benchmarking (see BLOG.md)
+func newGrid(data []string) (grid Grid) {
 	for r, line := range data {
 		chars := strings.Split(line, "")
 		for c, char := range chars {
@@ -164,9 +180,8 @@ func (grid *Grid) update() (flashes int) {
 
 // How many total flashes are there after 100 steps?
 func PartOne(content []string) (output int, err error) {
-	grid := newGrid(content)
+	grid := newGridPointer(content)
 
-	// set an upper bound of 1K?
 	for i := 0; i < 100; i++ {
 		output += grid.update()
 	}
@@ -175,6 +190,22 @@ func PartOne(content []string) (output int, err error) {
 }
 
 func PartTwo(content []string) (output int, err error) {
+	grid := newGridPointer(content)
+
+	// set an upper bound of 1K?
+	for i := 0; i < 1000; i++ {
+		flashes := grid.update()
+
+		if flashes == size*size {
+			// return value is not 0-indexed
+			return i + 1, nil
+		}
+	}
+
+	return
+}
+
+func PartTwoValue(content []string) (output int, err error) {
 	grid := newGrid(content)
 
 	// set an upper bound of 1K?
