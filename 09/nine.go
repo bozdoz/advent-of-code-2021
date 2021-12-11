@@ -34,7 +34,7 @@ func newHeightMap(data []string) (heights heightmap) {
 	return
 }
 
-func (heights heightmap) findNeighbours(row, col int) (neighbours [][2]int, err error) {
+func (heights *heightmap) findNeighbours(row, col int) (neighbours [][2]int, err error) {
 	indices := [][]int{
 		{col, row - 1},
 		{col, row + 1},
@@ -42,8 +42,8 @@ func (heights heightmap) findNeighbours(row, col int) (neighbours [][2]int, err 
 		{col + 1, row},
 	}
 
-	rowmax := len(heights) - 1
-	colmax := len(heights[0]) - 1
+	rowmax := len(*heights) - 1
+	colmax := len((*heights)[0]) - 1
 
 	if row > rowmax || col > colmax {
 		return neighbours, errors.New("col and row out of range")
@@ -62,13 +62,13 @@ func (heights heightmap) findNeighbours(row, col int) (neighbours [][2]int, err 
 	return
 }
 
-func (heights heightmap) findNeighbouringValues(row, col int) (vals []int, err error) {
+func (heights *heightmap) findNeighbouringValues(row, col int) (vals []int, err error) {
 	neighbours, err := heights.findNeighbours(row, col)
 
 	for _, coords := range neighbours {
 		r, c := coords[0], coords[1]
 
-		vals = append(vals, heights[r][c])
+		vals = append(vals, (*heights)[r][c])
 	}
 
 	return
@@ -86,8 +86,8 @@ func MinInt(nums ...int) int {
 	return min
 }
 
-func (heights heightmap) getLowPoints() (lowpoints [][2]int, err error) {
-	for r, col := range heights {
+func (heights *heightmap) getLowPoints() (lowpoints [][2]int, err error) {
+	for r, col := range *heights {
 		for c, val := range col {
 			neighbours, err := heights.findNeighbouringValues(r, c)
 
@@ -130,7 +130,7 @@ type basin struct {
 	rows, cols int
 }
 
-func (b basin) isIncluded(r, c int) bool {
+func (b *basin) isIncluded(r, c int) bool {
 	return b.included[r] != nil && b.included[r][c]
 }
 
@@ -161,10 +161,10 @@ func (b *basin) search(r, c int) {
 	}
 }
 
-func (heights heightmap) newBasin(lowpoint [2]int) (b basin) {
-	b.heights = heights
-	b.rows = len(heights[0])
-	b.cols = len(heights)
+func (heights *heightmap) newBasin(lowpoint [2]int) (b basin) {
+	b.heights = *heights
+	b.rows = len((*heights)[0])
+	b.cols = len(*heights)
 	b.included = make(map[int]map[int]bool, b.rows)
 
 	b.search(lowpoint[0], lowpoint[1])
@@ -172,7 +172,7 @@ func (heights heightmap) newBasin(lowpoint [2]int) (b basin) {
 	return
 }
 
-func (b basin) getSize() (size int) {
+func (b *basin) getSize() (size int) {
 	for _, vals := range b.included {
 		size += len(vals)
 	}
@@ -182,7 +182,7 @@ func (b basin) getSize() (size int) {
 
 // basins stem from lowpoints and encompass all cumulative neighbours
 // until a neighbour is a 9
-func (heights heightmap) getBasinSizes() (sizes []int, err error) {
+func (heights *heightmap) getBasinSizes() (sizes []int, err error) {
 	lowpoints, err := heights.getLowPoints()
 
 	if err != nil {
