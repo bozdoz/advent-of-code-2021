@@ -1,5 +1,33 @@
 # What Am I Learning Each Day?
 
+### Day 10
+
+Definitely puzzle fatigue.
+
+I genuinely spent more time reading the puzzle than answering it.  I had issues understanding what I was being asked to do.  VSCode also had a bracket-pair colorizer which kind of threw me off.  And I think there was less hand-holding for this puzzle than the last several.
+
+Had a rather large type structure for brackets and lines (which grew to be larger after part two):
+
+```go
+type Bracket struct {
+	isOpen                          bool
+	pair                            rune
+	corruptScore, autocompleteScore int
+}
+
+type Stack []rune
+
+type Line struct {
+	isCorrupted, isIncomplete bool
+	corruptedBy               rune
+	incompleteBrackets        Stack
+}
+```
+
+I defined each bracket type immediately as to whether it was **open** or not; I also wanted to explicitly pair them for reference.  So my logic was: 1. I generally ignore open brackets (add them to the stack), and compared closing brackets with the tail of the stack. Corrupted lines need to know which bracket it's corrupted by, and incomplete lines need to know which open brackets are unpaired.
+
+I learned that I ought to be using pointers as opposed to copying data structures in every method.  I wasn't aware that was happening yesterday, and I should revisit Day 9.
+
 ### Day 9
 
 Think I'm getting puzzle fatigue.  Kind of fun today as I've never done any path-tracing, or whatever that's called algorithms before.  I think what I did with the search function worked fine enough.  Only did one pass, so I haven't critiqued my own work yet.  I think the separation of concerns are mostly there.  Much better than yesterday's first pass anyway.
