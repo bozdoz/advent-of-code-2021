@@ -1,5 +1,88 @@
 # What Am I Learning Each Day?
 
+### Day 11
+
+Felt better about today's puzzle.  Seemed complex enough to earn my attention and respect.
+
+Tried to add a deferred function today, but it didn't actually work:
+
+```go
+	// any octopus with an energy level greater than 9 flashes
+	for _, cell := range cells {
+		// check for cell.flashed because
+		// it may have been flashed by a neighbour
+		// ...scandalous!
+		if cell.energy > maxEnergy && !cell.flashed {
+			cell.flash()
+		}
+	}
+
+	// wanted to make this a deferred statement, but no
+	for _, cell := range cells {
+		if cell.flashed {
+			flashes++
+			cell.resolveFlash()
+		}
+	}
+```
+
+That was going to be:
+
+```go
+	for _, cell := range cells {
+		if cell.energy > maxEnergy && !cell.flashed {
+			cell.flash()
+			// thought I could resolve the flash,
+			// but forgot that neighbours flash themselves in another function...
+			defer cell.resolveFlash()
+		}
+	}
+```
+
+Today was also my first time writing a custom string representation for printing (since that's typically how I debug)
+:
+
+```go
+// custom string representation
+func (cell *Cell) String() string {
+	if cell.energy > maxEnergy {
+		// flashing
+		return "x"
+	}
+
+	return fmt.Sprintf("%d", cell.energy)
+}
+```
+
+I did this because the `Grid` has references to `[][]*Cell`, and `Cell` has references to `[]*Cell`; so when I printed, I kept getting their addresses.  I believe I set up the pointers correctly this time, and successfully linked all of the cells to their references, otherwise I wouldn't have been able to have the `flash` method on the `Cell` type (would have needed access to the grid).  Also I found the cell's neighbours when setting up the grid, so that I didn't have to traverse the grid on each step/update.
+
+I'm still unsure if I need to be returning a pointer in a generic constructor-like function or not:
+
+```go
+func newGrid(data []string) *Grid {
+	grid := &Grid{}
+	// ... etc	
+	return grid
+}
+```
+
+In previous days, I had just returned the struct, like this:
+
+```go
+func newGrid(data []string) (grid Grid) {
+	return
+}
+```
+
+But I ran into issues with a named result parameter for a pointer, trying this:
+
+```go
+func newGrid(data []string) (grid *Grid) {
+	// grid is not initialized!! It's nil!
+	return
+}
+```
+
 ### Day 10
 
 Definitely puzzle fatigue.
