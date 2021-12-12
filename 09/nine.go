@@ -11,7 +11,7 @@ import (
 )
 
 // different puzzles require different file loaders
-var FileLoader = utils.LoadFile
+var FileLoader = utils.LoadFileAsLines
 
 type heightmap [][]int
 

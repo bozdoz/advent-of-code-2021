@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func LoadFile(filename string) []string {
+func LoadFileAsLines(filename string) (lines []string) {
 	file, err := os.Open(filename)
 
 	if err != nil {
@@ -21,8 +21,6 @@ func LoadFile(filename string) []string {
 
 	scanner := bufio.NewScanner(file)
 
-	lines := []string{}
-
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
@@ -32,12 +30,11 @@ func LoadFile(filename string) []string {
 		panic(err)
 	}
 
-	return lines
+	return
 }
 
-func LoadInts(filename string) []int {
-	vals := LoadFile(filename)
-	nums := []int{}
+func LoadInts(filename string) (nums []int) {
+	vals := LoadFileAsLines(filename)
 
 	for _, val := range vals {
 		i, err := strconv.Atoi(val)
@@ -47,7 +44,7 @@ func LoadInts(filename string) []int {
 		nums = append(nums, i)
 	}
 
-	return nums
+	return
 }
 
 func LoadAsString(filename string) string {
@@ -160,9 +157,9 @@ func (s sortRuneString) Len() int {
 }
 
 func SortString(str string) string {
-	arr := []rune(str)
+	arr := sortRuneString(str)
 
-	sort.Sort(sortRuneString(arr))
+	sort.Sort(arr)
 
 	return string(arr)
 }

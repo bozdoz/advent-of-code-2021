@@ -153,7 +153,7 @@ func main() {
 	}
 
 	filename := os.Args[1]
-	vals := utils.LoadFile(filename)
+	vals := utils.LoadFileAsLines(filename)
 
 	answer, err := PartOne(vals)
 

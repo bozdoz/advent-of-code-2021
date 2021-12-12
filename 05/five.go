@@ -181,7 +181,7 @@ func main() {
 	// safe to assume
 	filename := "input.txt"
 
-	vals := utils.LoadFile(filename)
+	vals := utils.LoadFileAsLines(filename)
 
 	answer, err := PartOne(vals)
 
