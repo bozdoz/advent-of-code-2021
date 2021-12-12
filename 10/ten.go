@@ -8,7 +8,7 @@ import (
 )
 
 // different puzzles require different file loaders
-var FileLoader = utils.LoadFile
+var FileLoader = utils.LoadFileAsLines
 
 type Bracket struct {
 	isOpen                          bool

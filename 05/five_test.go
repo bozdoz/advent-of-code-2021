@@ -13,7 +13,7 @@ var answers = map[int]int{
 }
 
 // different puzzles require different file loaders
-var fileLoader = utils.LoadFile
+var fileLoader = utils.LoadFileAsLines
 
 func TestExampleOne(t *testing.T) {
 	expected, ok := answers[1]
