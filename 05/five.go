@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
 	"bozdoz.com/aoc-2021/utils"
 )
@@ -28,7 +27,7 @@ func (g *grid) load(data []string) (err error) {
 	for _, row := range data {
 		var x1, y1, x2, y2 int
 
-		_, err := fmt.Fscanf(strings.NewReader(row), "%d,%d -> %d,%d", &x1, &y1, &x2, &y2)
+		_, err := fmt.Sscanf(row, "%d,%d -> %d,%d", &x1, &y1, &x2, &y2)
 
 		if err != nil {
 			return err
