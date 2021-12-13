@@ -7,7 +7,7 @@ import (
 // fill in the answers for each part (as they come)
 var answers = map[int]int{
 	1: 10,
-	// 2: 1134,
+	2: 36,
 }
 
 var vals = FileLoader("example.txt")

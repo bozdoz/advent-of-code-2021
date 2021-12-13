@@ -23,8 +23,13 @@ type Cave struct {
 	flowsInto []*Cave
 }
 
+type Path []*Cave
+type Paths []Path
+
 type CaveSystem struct {
-	caves map[string]*Cave
+	caves                    map[string]*Cave
+	viewSingleSmallCaveTwice bool
+	paths                    Paths
 }
 
 func (caveSys *CaveSystem) String() (output string) {
@@ -104,11 +109,9 @@ func newCaveSystem(data []string) *CaveSystem {
 	return caveSys
 }
 
-type Path []Cave
-
-func (path *Path) has(cave Cave) bool {
+func (path *Path) has(cave *Cave) bool {
 	for _, ref := range *path {
-		if cave.name == ref.name {
+		if cave == ref {
 			return true
 		}
 	}
@@ -116,7 +119,40 @@ func (path *Path) has(cave Cave) bool {
 	return false
 }
 
-type Paths []Path
+// all paths you find should visit small caves at most once
+// ...except Part Two where a single small cave
+// can be revisited at most once
+func (path *Path) canCaveBeVisited(cave *Cave, oneSmallCaveCanRevisit bool) bool {
+	// big caves can always be revisited
+	// and caves can always be visited once
+	if cave.isBig || !path.has(cave) {
+		return true
+	}
+
+	if !oneSmallCaveCanRevisit {
+		// small caves can only be visited once
+		return false
+	}
+
+	seen := map[*Cave]int{}
+
+	for _, cave := range *path {
+		// only care about small caves
+		if !cave.isBig {
+			seen[cave]++
+		}
+	}
+
+	for _, count := range seen {
+		if count > 1 {
+			// one small cave has been revisited already
+			return false
+		}
+	}
+
+	// revisit this small cave
+	return true
+}
 
 func (path *Path) String() (output string) {
 	paths := []string{}
@@ -138,58 +174,49 @@ func (paths *Paths) String() (output string) {
 	return strings.Join(lines, "\n")
 }
 
-func (paths *Paths) addCave(prevPath Path) {
+func (caveSys *CaveSystem) traverse(prevPath Path) {
 	path := make(Path, len(prevPath))
 
 	copy(path, prevPath)
 
 	lastCave := path[len(path)-1]
 
-	for _, cave := range lastCave.flowsInto {
-		nextCave := *cave
-		// all paths you find should visit small caves at most once
-		if !nextCave.isBig && path.has(nextCave) {
+	for _, nextCave := range lastCave.flowsInto {
+		if !path.canCaveBeVisited(nextCave, caveSys.viewSingleSmallCaveTwice) {
 			continue
 		}
 
 		updatedPath := append(path, nextCave)
-		fmt.Println("updatedPath", updatedPath.String())
 		if nextCave.name == end {
-			if len(*paths) < 1 {
-				func(paths *Paths, updatedPath Path) {
-					*paths = append(*paths, updatedPath)
-				}(paths, updatedPath)
-			} else {
-				return
-			}
-			fmt.Println("---", paths, "---")
+			caveSys.paths = append(caveSys.paths, updatedPath)
 		} else {
-			paths.addCave(updatedPath)
+			caveSys.traverse(updatedPath)
 		}
 	}
 }
 
 func (caveSys *CaveSystem) findAllPaths() (count int) {
-	paths := &Paths{}
 	// starts at start
-	paths.addCave(Path{*caveSys.caves[start]})
+	caveSys.traverse(Path{caveSys.caves[start]})
 
-	fmt.Println("---", paths, "---")
-
-	return
+	return len(caveSys.paths)
 }
 
 func PartOne(content []string) (output int, err error) {
 	caveSys := newCaveSystem(content)
 
-	fmt.Println(caveSys)
-
-	caveSys.findAllPaths()
+	output = caveSys.findAllPaths()
 
 	return
 }
 
 func PartTwo(content []string) (output int, err error) {
+	caveSys := newCaveSystem(content)
+
+	caveSys.viewSingleSmallCaveTwice = true
+
+	output = caveSys.findAllPaths()
+
 	return
 }
 
