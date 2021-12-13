@@ -138,7 +138,11 @@ func (paths *Paths) String() (output string) {
 	return strings.Join(lines, "\n")
 }
 
-func (paths *Paths) addCave(path Path) {
+func (paths *Paths) addCave(prevPath Path) {
+	path := make(Path, len(prevPath))
+
+	copy(path, prevPath)
+
 	lastCave := path[len(path)-1]
 
 	for _, cave := range lastCave.flowsInto {
