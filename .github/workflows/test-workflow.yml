@@ -1,0 +1,21 @@
+name: TestWorkflow
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**/*.md"
+      - "*.sh"
+      - "Dockerfile"
+      - ".devcontainer/*"
+      - ".vscode/*"
+
+jobs:
+  test:
+    container:
+      image: golang:1.17.5
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./test.sh
