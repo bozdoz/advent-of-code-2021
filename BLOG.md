@@ -1,5 +1,49 @@
 # What Am I Learning Each Day?
 
+### Day 12
+
+I should really figure out how to use Logging instead of printing so much.
+
+I used the debugger a lot for this puzzle.  For whatever reason, I was getting this output for the first example:
+
+```
+start,A,b,A,c,A,end
+start,A,b,A,end
+start,A,b,end
+start,A,c,A,b,end
+start,A,c,A,b,end,end
+start,A,c,A,end
+start,A,end
+start,b,A,c,A,end
+start,b,A,end
+start,b,end
+```
+
+Note the single line with **"end,end"**. 😩
+
+So my puzzle became figuring that out; which took hours, and I still don't know *why* it happened.
+
+My failing code was:
+
+```go
+func (paths *Paths) addCave(path Path) {
+	lastCave := path[len(path)-1]
+```
+
+And the *fix* was:
+
+```go
+func (paths *Paths) addCave(prevPath Path) {
+	path := make(Path, len(prevPath))
+
+	// make a copy!
+	copy(path, prevPath)
+
+	lastCave := path[len(path)-1]
+```
+
+So, unfortunately my day became a lesson in debugging and custom string representations of pointers.
+
 ### Day 11
 
 Felt better about today's puzzle.  Seemed complex enough to earn my attention and respect.
