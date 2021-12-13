@@ -8,7 +8,7 @@ import (
 
 func TestExampleOne(t *testing.T) {
 	expected := 198
-	vals := utils.LoadFileAsLines("example.txt")
+	vals := utils.LoadAsLines("example.txt")
 	val, err := PartOne(vals)
 
 	if err != nil {
@@ -24,7 +24,7 @@ func TestExampleOne(t *testing.T) {
 
 func TestExampleTwo(t *testing.T) {
 	expected := 230
-	vals := utils.LoadFileAsLines("example.txt")
+	vals := utils.LoadAsLines("example.txt")
 	val, err := PartTwo(vals)
 
 	if err != nil {

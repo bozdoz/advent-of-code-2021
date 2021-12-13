@@ -82,7 +82,7 @@ func main() {
 	}
 
 	filename := os.Args[1]
-	vals := utils.LoadFileAsLines(filename)
+	vals := utils.LoadAsLines(filename)
 
 	answer, err := PartOne(vals)
 
