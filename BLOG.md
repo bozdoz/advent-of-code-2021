@@ -44,6 +44,12 @@ func (paths *Paths) addCave(prevPath Path) {
 
 So, unfortunately my day became a lesson in debugging and custom string representations of pointers.
 
+**Update**
+
+I took some time to split `twelve.go` into separate files.  I find Go's import/hoisting system bizarre, but thank goodness my IDE can follow the references...  I still don't know best practices around when a type should be in it's own file, for example. AFAIK, the package names in the files must be identical.
+
+Also added this repo to Github Actions for continuously testing (make sure I don't break things when updating subsequent days).
+
 ### Day 11
 
 Felt better about today's puzzle.  Seemed complex enough to earn my attention and respect.
