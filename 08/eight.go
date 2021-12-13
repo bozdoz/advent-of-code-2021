@@ -9,7 +9,7 @@ import (
 )
 
 // different puzzles require different file loaders
-var FileLoader = utils.LoadFileAsLines
+var FileLoader = utils.LoadAsLines
 
 // how many times do digits 1, 4, 7, or 8 appear?
 func PartOne(lines []string) (output int, err error) {

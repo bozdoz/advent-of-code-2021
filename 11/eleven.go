@@ -9,7 +9,7 @@ import (
 )
 
 // different puzzles require different file loaders
-var FileLoader = utils.LoadFileAsLines
+var FileLoader = utils.LoadAsLines
 
 const (
 	size      = 10

@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func LoadFileAsLines(filename string) (lines []string) {
+func LoadAsLines(filename string) (lines []string) {
 	file, err := os.Open(filename)
 
 	if err != nil {
@@ -34,7 +34,7 @@ func LoadFileAsLines(filename string) (lines []string) {
 }
 
 func LoadInts(filename string) (nums []int) {
-	vals := LoadFileAsLines(filename)
+	vals := LoadAsLines(filename)
 
 	for _, val := range vals {
 		i, err := strconv.Atoi(val)
