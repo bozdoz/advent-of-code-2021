@@ -1,5 +1,28 @@
 # What Am I Learning Each Day?
 
+### Day 13
+
+Successfully altered today's script to use the `log` package instead of `fmt` for printing debug information to the console.  I made it so that the debug prints did not output to stdout while running, but only while testing.  I did this by introducing [init functions](https://go.dev/doc/effective_go#init) (for the first time).
+
+thirteen.go
+```go
+// discard logs when script is run (overwritten in test file)
+func init() {
+	log.SetFlags(log.Llongfile)
+	log.SetOutput(ioutil.Discard)
+}
+```
+
+thirteen_test.go
+```go
+// show log output for tests only
+func init() {
+	log.SetOutput(os.Stdout)
+}
+```
+
+I'm also glad that I've been getting into the habit of creating `String()` methods for my types, so that I can mimic the outputs on the site.  There was no way I was going to program a way to transform ascii art into a string.
+
 ### Day 12
 
 I should really figure out how to use Logging instead of printing so much.
