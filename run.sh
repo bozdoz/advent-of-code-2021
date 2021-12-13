@@ -1,6 +1,6 @@
 #!/bin/bash
 
-day=${DAY:-$1}
+day=${1:-$DAY}
 
 if [ -z $day ]; then
   echo "You must set \$DAY or pass day directory as an arg"
