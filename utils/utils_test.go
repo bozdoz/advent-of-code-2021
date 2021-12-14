@@ -63,3 +63,51 @@ func TestSum(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestSplitByEmptyNewLine(t *testing.T) {
+	input := "abc"
+	parts := SplitByEmptyNewline(input)
+
+	if parts[0] != input {
+		t.Logf("Answer should be %s, but got %s", input, parts[0])
+		t.Fail()
+	}
+}
+
+// TODO figure out how to separate unit tests
+func TestSplitByEmptyNewLineWithNewLine(t *testing.T) {
+	input := `abc
+
+123`
+
+	parts := SplitByEmptyNewline(input)
+
+	if parts[0] != "abc" {
+		t.Logf("Answer should be %s, but got %s", "abc", parts[0])
+		t.Fail()
+	}
+
+	if parts[1] != "123" {
+		t.Logf("Answer should be %s, but got %s", "123", parts[0])
+		t.Fail()
+	}
+}
+func TestSplitByEmptyNewLineIgnoreLastEmptyLine(t *testing.T) {
+	input := `abc
+
+123
+`
+
+	parts := SplitByEmptyNewline(input)
+	count := len(parts)
+
+	if count != 2 {
+		t.Logf("Answer should be %d, but got %d", 2, count)
+		t.Fail()
+	}
+
+	if parts[1] != "123" {
+		t.Logf("Answer should be %s, but got %s", "123", parts[0])
+		t.Fail()
+	}
+}

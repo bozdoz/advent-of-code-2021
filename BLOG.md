@@ -1,5 +1,87 @@
 # What Am I Learning Each Day?
 
+### Day 14
+
+I thought I figured this puzzle out before I began.  I thought to save a map of pairs, and never again think of the original template string.  This made it difficult to count the occurences of letters afterwards.  I had to refactor to also continually keep track of chars, which wasn't hard at all:
+
+```go
+for steps > 0 {
+	steps--
+	nextElements := newElements("")
+
+	for ref, replacement := range polymer.insertionRules {
+		count, ok := elements.pairs[ref]
+
+		if !ok {
+			continue
+		}
+
+		// remove pair from pairs so that we can merge
+		// any unmatched pairs (they should persist)
+		delete(elements.pairs, ref)
+
+		// increment char count for replacement
+		nextElements.charCount[replacement] += count
+
+		// the replacement creates two new pairs
+		// NN -> C creates NC & CN
+		newPairs := []string{
+			ref[0:1] + replacement,
+			replacement + ref[1:2],
+		}
+
+		for _, newPair := range newPairs {
+			nextElements.pairs[newPair] += count
+		}
+	}
+
+	// merge any unmatched pairs
+	elements.merge(nextElements)
+}
+```
+
+This is my first time using `delete`.  Also it was nice to implement a merge function:
+
+```go
+type Elements struct {
+	pairs, charCount map[string]int
+}
+
+func (elements *Elements) merge(otherElements Elements) {
+	for key, val := range otherElements.pairs {
+		elements.pairs[key] += val
+	}
+
+	for key, val := range otherElements.charCount {
+		elements.charCount[key] += val
+	}
+}
+```
+
+I reused the `splitByEmptyNewline` function from Day 13, but ran into a problem with `fmt.Sscanf` because I hit an EOF!  So I refactored the function, adding `strings.TrimSpace`) and moved it to utils:
+
+```go
+func SplitByEmptyNewline(str string) []string {
+	return regexp.
+		MustCompile(`\n\s*\n`).
+		Split(strings.TrimSpace(str), -1)
+}
+```
+
+I also hit a snag with `createDay.sh`, because I've started adding more than one go file in my daily puzzle directories.  I'm not sure how to adjust for that: maybe I should just have a template directory or something to copy from... (update: fixed)
+
+First day implementing a proper min/max function too:
+
+```go
+func (elements *Elements) getMinMax() (int, int) {
+	max := math.Inf(-1)
+	min := math.Inf(1)
+	...
+}
+```
+
+Even though I hated comparing `float64` to `int`
+
 ### Day 13
 
 Successfully altered today's script to use the `log` package instead of `fmt` for printing debug information to the console.  I made it so that the debug prints did not output to stdout while running, but only while testing.  I did this by introducing [init functions](https://go.dev/doc/effective_go#init) (for the first time).
