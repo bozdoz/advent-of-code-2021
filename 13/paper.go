@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
+
+	"bozdoz.com/aoc-2021/utils"
 )
 
 type FoldInstruction struct {
@@ -17,12 +18,6 @@ type Paper struct {
 	foldInstructions []FoldInstruction
 }
 
-func splitByEmptyNewline(str string) []string {
-	return regexp.
-		MustCompile(`\n\s*\n`).
-		Split(str, -1)
-}
-
 func (paper *Paper) drawDot(x, y int) {
 	if paper.dots[x] == nil {
 		paper.dots[x] = map[int]bool{}
@@ -31,7 +26,7 @@ func (paper *Paper) drawDot(x, y int) {
 }
 
 func newPaper(data string) (paper Paper) {
-	parts := splitByEmptyNewline(data)
+	parts := utils.SplitByEmptyNewline(data)
 	dotCoords, instructions := parts[0], parts[1]
 
 	paper.dots = map[int]map[int]bool{}

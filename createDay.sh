@@ -2,7 +2,6 @@
 
 NEW_DAY=$1
 NEW_DAY_NAME=$2
-TEMPLATE=${3:-'09'}
 
 if [ -z $NEW_DAY ]; then
   echo "Provide ## for new day directory"
@@ -14,24 +13,16 @@ if [ -z $NEW_DAY_NAME ]; then
   exit 1
 fi
 
-cp -r $TEMPLATE $NEW_DAY
+mkdir $NEW_DAY
 
 cd $NEW_DAY
 
-# get name from old day
-for f in *.go; do
-  if [ $f != "*_test*" ]; then
-    OLD_DAY_NAME=$(echo "${f/.go/}")
-    break
-  fi
-done;
+# start touching things
+touch README.md
+touch input.txt
+touch example.txt
 
-# rename all go files from old name to new name
-for f in *.go; do
-  mv $f ${f/${OLD_DAY_NAME}/${NEW_DAY_NAME}}
-done;
-
-# overwrite main go file
+# create main go file
 cat > $NEW_DAY_NAME.go << EOF
 package main
 
@@ -75,5 +66,69 @@ func main() {
 	}
 
 	fmt.Printf("Part Two: %d \n", answer2)
+}
+EOF
+
+# create test file
+cat > ${NEW_DAY_NAME}_test.go << EOF
+package main
+
+import (
+	"log"
+	"os"
+	"testing"
+)
+
+// fill in the answers for each part (as they come)
+var answers = map[int]int{
+	1: 0,
+	2: 0,
+}
+
+var vals = FileLoader("example.txt")
+
+// show log output for tests only
+func init() {
+	log.SetOutput(os.Stdout)
+}
+
+func TestExampleOne(t *testing.T) {
+	expected, ok := answers[1]
+
+	if !ok {
+		return
+	}
+
+	val, err := PartOne(vals)
+
+	if err != nil {
+		t.Log("error should be nil", err)
+		t.Fail()
+	}
+
+	if val != expected {
+		t.Logf("Answer should be %d, but got %d", expected, val)
+		t.Fail()
+	}
+}
+
+func TestExampleTwo(t *testing.T) {
+	expected, ok := answers[2]
+
+	if !ok {
+		return
+	}
+
+	val, err := PartTwo(vals)
+
+	if err != nil {
+		t.Log("error should be nil", err)
+		t.Fail()
+	}
+
+	if val != expected {
+		t.Logf("Answer should be %d, but got %d", expected, val)
+		t.Fail()
+	}
 }
 EOF

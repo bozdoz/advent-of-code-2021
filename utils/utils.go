@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"math"
 	"os"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -162,4 +163,10 @@ func SortString(str string) string {
 	sort.Sort(arr)
 
 	return string(arr)
+}
+
+func SplitByEmptyNewline(str string) []string {
+	return regexp.
+		MustCompile(`\n\s*\n`).
+		Split(strings.TrimSpace(str), -1)
 }
