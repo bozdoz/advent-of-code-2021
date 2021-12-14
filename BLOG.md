@@ -21,6 +21,8 @@ func init() {
 }
 ```
 
+Adding `log.SetFlags(log.Llongfile)` showed me the absolute path and line number, and vscode took me directly to the log statement!
+
 I'm also glad that I've been getting into the habit of creating `String()` methods for my types, so that I can mimic the outputs on the site.  There was no way I was going to program a way to transform ascii art into a string.
 
 ### Day 12
@@ -72,6 +74,14 @@ So, unfortunately my day became a lesson in debugging and custom string represen
 I took some time to split `twelve.go` into separate files.  I find Go's import/hoisting system bizarre, but thank goodness my IDE can follow the references...  I still don't know best practices around when a type should be in it's own file, for example. AFAIK, the package names in the files must be identical.
 
 Also added this repo to Github Actions for continuously testing (make sure I don't break things when updating subsequent days).
+
+**Second Update**
+
+Slices are headers describing contiguous sections of backing arrays.  They just point to the head of an array (which holds the data).  Also `append`:
+
+> The append built-in function appends elements to the end of a slice. If it has sufficient capacity, the destination is resliced to accommodate the new elements. If it does not, a new underlying array will be allocated.
+
+So the capacity of the path which was passed recursively to the traverse function was probably changing.  And the path itself was just a header for an array which held the underlying data.  So it was the same header being manipulated.  Explicitly adding a `copy()` I think was the right answer.
 
 ### Day 11
 
