@@ -9,9 +9,11 @@ import (
 	"bozdoz.com/aoc-2021/utils"
 )
 
+// stores all the puzzle inputs
 type Polymer struct {
+	// CBKH
 	template string
-	// AB -> C
+	// CB -> H
 	insertionRules map[string]string
 }
 
@@ -28,7 +30,7 @@ func newPolymer(data string) *Polymer {
 		var key, val string
 
 		// for griff
-		if count, err := fmt.Sscanf(instruction, "%2s -> %1s", &key, &val); count < 2 || err != nil {
+		if count, err := fmt.Sscanf(instruction, "%2s -> %1s", &key, &val); count != 2 || err != nil {
 			if err != nil {
 				log.Println("failed to parse instruction", instruction)
 				log.Println(err)
@@ -80,34 +82,38 @@ func newElements(template string) Elements {
 func (polymer *Polymer) pairInsertion(steps int) Elements {
 	elements := newElements(polymer.template)
 
-	for steps > 0 {
-		steps--
+	// decrement steps
+	for ; steps > 0; steps-- {
+		// get empty Elements
 		nextElements := newElements("")
 
+		// ? iterating each instruction, but maybe it would be
+		// better to iterate each elements.pairs instead
+		// (since elements.pairs is likely to be smaller)
 		for ref, replacement := range polymer.insertionRules {
+			// could check count > 0, but why waste a decent "ok"?
 			count, ok := elements.pairs[ref]
 
 			if !ok {
+				// it's ok not to be ok
 				continue
 			}
-
-			// remove pair from pairs so that we can merge
-			// any unmatched pairs (they should persist)
-			delete(elements.pairs, ref)
 
 			// increment char count for replacement
 			nextElements.charCount[replacement] += count
 
 			// the replacement creates two new pairs
 			// NN -> C creates NC & CN
-			newPairs := []string{
-				ref[0:1] + replacement,
-				replacement + ref[1:2],
-			}
+			// * NOTE: ref[0] is a byte, ref[0:1] is a string
+			firstNewPair := ref[0:1] + replacement
+			secondNewPair := replacement + ref[1:2]
 
-			for _, newPair := range newPairs {
-				nextElements.pairs[newPair] += count
-			}
+			nextElements.pairs[firstNewPair] += count
+			nextElements.pairs[secondNewPair] += count
+
+			// remove pair from pairs so that we can merge
+			// any unmatched pairs (they should persist)
+			delete(elements.pairs, ref)
 		}
 
 		// merge any unmatched pairs
@@ -118,6 +124,7 @@ func (polymer *Polymer) pairInsertion(steps int) Elements {
 }
 
 func (elements *Elements) getMinMax() (int, int) {
+	// first time using Inf
 	max := math.Inf(-1)
 	min := math.Inf(1)
 

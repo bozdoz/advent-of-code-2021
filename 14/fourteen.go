@@ -13,6 +13,8 @@ var FileLoader = utils.LoadAsString
 
 // discard logs when script is run (overwritten in test file)
 func init() {
+	// TODO: find out how to get a logger to
+	// always log Llongfile: followed by "\n"
 	log.SetFlags(log.Llongfile)
 	log.SetOutput(ioutil.Discard)
 }
