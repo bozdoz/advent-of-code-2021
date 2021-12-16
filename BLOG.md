@@ -1,5 +1,11 @@
 # What Am I Learning Each Day?
 
+### Day 15
+
+Tripped up by copying a [][]Cell over to a map[int]map[int]Cell implementation.
+
+Caught in recursion trying to add neighbours to string representation
+
 ### Day 14
 
 I thought I figured this puzzle out before I began.  I thought to save a map of pairs, and never again think of the original template string.  This made it difficult to count the occurences of letters afterwards.  I had to refactor to also continually keep track of chars, which wasn't hard at all:

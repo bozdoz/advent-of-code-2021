@@ -74,18 +74,6 @@ func (heights *heightmap) findNeighbouringValues(row, col int) (vals []int, err 
 	return
 }
 
-func MinInt(nums ...int) int {
-	min := nums[0]
-
-	for _, val := range nums {
-		if val < min {
-			min = val
-		}
-	}
-
-	return min
-}
-
 func (heights *heightmap) getLowPoints() (lowpoints [][2]int, err error) {
 	for r, col := range *heights {
 		for c, val := range col {
@@ -95,7 +83,7 @@ func (heights *heightmap) getLowPoints() (lowpoints [][2]int, err error) {
 				return lowpoints, err
 			}
 
-			lowest := MinInt(neighbours...)
+			lowest := utils.MinInt(neighbours...)
 
 			if lowest > val {
 				lowpoints = append(lowpoints, [2]int{r, c})
