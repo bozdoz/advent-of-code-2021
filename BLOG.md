@@ -6,6 +6,28 @@ Tripped up by copying a [][]Cell over to a map[int]map[int]Cell implementation.
 
 Caught in recursion trying to add neighbours to string representation
 
+Learned Dijkstra's algorithm.
+
+Wrote an implementation of a priority queue.
+
+First time using type switch.
+
+Really just running long processes today.
+
+Initially tried my algorithms from day 12, but it was awfully long.
+
+Finally got it:
+
+```bash
+> time ./run.sh 
+Part One: 707 
+Part Two: 2942 
+
+real    0m37.778s
+user    0m47.089s
+sys     0m4.114s
+```
+
 ### Day 14
 
 I thought I figured this puzzle out before I began.  I thought to save a map of pairs, and never again think of the original template string.  This made it difficult to count the occurences of letters afterwards.  I had to refactor to also continually keep track of chars, which wasn't hard at all:

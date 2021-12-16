@@ -219,3 +219,15 @@ func MinInt(nums ...int) int {
 
 	return min
 }
+
+func MaxInt(nums ...int) int {
+	max := nums[0]
+
+	for _, val := range nums {
+		if val > max {
+			max = val
+		}
+	}
+
+	return max
+}
