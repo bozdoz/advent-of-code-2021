@@ -28,27 +28,44 @@ type Cave struct {
 	start, end    *Cell
 }
 
-func newCave(data []string) (cave Cave) {
-	cave.height = len(data)
-	cave.width = len(data[0])
+func newCave(data []string, multiplier int) (cave Cave) {
+	rows := len(data)
+	cols := len(data[0])
+	cave.height = rows * multiplier
+	cave.width = cols * multiplier
 	// math.Inf is awful to work with
 	startingDistance := cave.height * cave.width * 10
 
-	// "the area you originally scanned is just one tile in a 5x5 tile area that forms the full map"
-	startingDistance *= 5
+	// make all rows
+	for range data {
+		for i := 1; i <= multiplier; i++ {
+			cave.grid = append(cave.grid, make(Row, cave.width))
+		}
+	}
 
 	for r, line := range data {
-		cave.grid = append(cave.grid, make(Row, cave.width))
-		for c, char := range strings.Split(line, "") {
-			value, err := strconv.Atoi(char)
+		for i := 0; i < multiplier; i++ {
+			for c, char := range strings.Split(line, "") {
+				value, err := strconv.Atoi(char)
 
-			if err != nil {
-				panic("could not convert char to int")
-			}
+				if err != nil {
+					panic("could not convert char to int")
+				}
 
-			cave.grid[r][c] = &Cell{
-				value:    value,
-				distance: startingDistance,
+				for j := 0; j < multiplier; j++ {
+					adjRow := rows*i + r
+					adjCol := cols*j + c
+					newVal := value + i + j
+
+					if newVal > 9 {
+						newVal = newVal - 9
+					}
+
+					cave.grid[adjRow][adjCol] = &Cell{
+						value:    newVal,
+						distance: startingDistance,
+					}
+				}
 			}
 		}
 	}

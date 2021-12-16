@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 
 	"bozdoz.com/aoc-2021/utils"
 )
@@ -12,16 +13,13 @@ var log = utils.Logger()
 
 func init() {
 	// disable logs when running (enabled in _test)
-	// log.SetOutput(ioutil.Discard)
+	log.SetOutput(ioutil.Discard)
 }
 
 func PartOne(content []string) (output int, err error) {
-	// iterations: 20
-	cave := newCave(content)
+	cave := newCave(content, 1)
 
-	// log.Println(cave.String())
-
-	// log.Println(cave.DisplayScores())
+	log.Println(cave.String())
 
 	cave.findAllPaths()
 
@@ -29,7 +27,13 @@ func PartOne(content []string) (output int, err error) {
 }
 
 func PartTwo(content []string) (output int, err error) {
-	return
+	cave := newCave(content, 5)
+
+	log.Println(cave.String())
+
+	cave.findAllPaths()
+
+	return cave.end.distance, nil
 }
 
 func main() {
