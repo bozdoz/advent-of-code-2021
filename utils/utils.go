@@ -2,7 +2,10 @@ package utils
 
 import (
 	"bufio"
+	"fmt"
+	"io"
 	"io/ioutil"
+	golog "log"
 	"math"
 	"os"
 	"regexp"
@@ -169,4 +172,50 @@ func SplitByEmptyNewline(str string) []string {
 	return regexp.
 		MustCompile(`\n\s*\n`).
 		Split(strings.TrimSpace(str), -1)
+}
+
+// TODO: would love to simply extend this
+type ExtendedLogger struct {
+	Logger golog.Logger
+}
+
+// used to make a new line after the Llongfile
+func (log *ExtendedLogger) Println(v ...interface{}) {
+	log.Logger.Output(2, "\n"+fmt.Sprintln(v...))
+}
+
+func (log *ExtendedLogger) SetOutput(w io.Writer) {
+	log.Logger.SetOutput(w)
+}
+
+// custom logger, purely to add a new line in Println
+func Logger(args ...interface{}) *ExtendedLogger {
+	// default empty prefix
+	prefix := ""
+
+	if len(args) > 0 {
+		// first type switch
+		switch v := args[0].(type) {
+		case string:
+			prefix = fmt.Sprintf("[%s] ", v)
+		}
+	}
+
+	newLog := golog.New(os.Stdout, prefix, golog.Llongfile)
+
+	return &ExtendedLogger{
+		Logger: *newLog,
+	}
+}
+
+func MinInt(nums ...int) int {
+	min := nums[0]
+
+	for _, val := range nums {
+		if val < min {
+			min = val
+		}
+	}
+
+	return min
 }
