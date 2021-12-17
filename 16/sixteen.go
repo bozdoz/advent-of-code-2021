@@ -35,7 +35,19 @@ func PartOne(content string) (output int, err error) {
 }
 
 func PartTwo(content string) (output int, err error) {
-	return
+	binary, err := hexToBinary(content)
+
+	if err != nil {
+		return 0, err
+	}
+
+	packet, _, err := newPacket(binary)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return packet.evaluateExpression(), nil
 }
 
 func main() {
