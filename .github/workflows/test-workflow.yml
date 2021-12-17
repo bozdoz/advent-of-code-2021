@@ -14,7 +14,7 @@ on:
 jobs:
   test:
     container:
-      image: golang:1.17.5
+      image: golang:1.18beta1-bullseye
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
