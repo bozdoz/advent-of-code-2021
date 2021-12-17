@@ -1,8 +1,8 @@
-FROM golang:1.17.5
+FROM golang:1.18beta1-bullseye
 
 WORKDIR /app
 
-ENV USER=gouser
+ENV USER=gopher
 
 RUN useradd --create-home $USER \
   && chown -R $USER:$USER /app
