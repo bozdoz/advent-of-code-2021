@@ -1,22 +1,68 @@
 # What Am I Learning Each Day?
 
+### Day 16
+
+Finally on go1.18, using generics.  Kind of hate it so far, but got to improve my BinaryToInt function: 
+
+```go
+```
+
+Also first time using enums and `iota`.
+
+Created a custom type for Binary for getting head and tail from a given index, which made the use of generics helpful for the BinaryToInt function above.
+
+I believe this is my first day inheriting/extending struct types.
+
+
 ### Day 15
 
-Tripped up by copying a [][]Cell over to a map[int]map[int]Cell implementation.
+Tripped up by copying a [][]Cell implementation over to a map[int]map[int]Cell implementation; maybe the latter was a better idea, but I guess I can't rely on switching back and forth and copying solutions from previous days.
 
-Caught in recursion trying to add neighbours to string representation
+Caught in recursion trying to add neighbours to string representation for grid.cells[][].neighbours
 
-Learned Dijkstra's algorithm.
+Learned [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm).
 
 Wrote an implementation of a priority queue.
 
-First time using type switch.
+First time using type switch:
 
-Really just running long processes today.
+```go
+// TODO: would love to simply extend this
+type ExtendedLogger struct {
+	Logger golog.Logger
+}
 
-Initially tried my algorithms from day 12, but it was awfully long.
+// used to make a new line after the Llongfile
+func (log *ExtendedLogger) Println(v ...interface{}) {
+	log.Logger.Output(2, "\n"+fmt.Sprintln(v...))
+}
 
-Finally got it:
+func (log *ExtendedLogger) SetOutput(w io.Writer) {
+	log.Logger.SetOutput(w)
+}
+
+// custom logger, purely to add a new line in Println
+func Logger(args ...interface{}) *ExtendedLogger {
+	// default empty prefix
+	prefix := ""
+
+	if len(args) > 0 {
+		// first type switch
+		switch v := args[0].(type) {
+		case string:
+			prefix = fmt.Sprintf("[%s] ", v)
+		}
+	}
+
+	newLog := golog.New(os.Stdout, prefix, golog.Llongfile)
+
+	return &ExtendedLogger{
+		Logger: *newLog,
+	}
+}
+```
+
+Most of today was just waiting on my algorithms to complete.  But I gave up on them to create the final solution.  Initially tried my algorithms from day 12, but it was awfully long.  Finally got it and it ran very quickly:
 
 ```bash
 > time ./run.sh 
@@ -27,6 +73,8 @@ real    0m37.778s
 user    0m47.089s
 sys     0m4.114s
 ```
+
+Guess I should be more careful with recursion!  Priority queues seem like a great idea going forward.
 
 ### Day 14
 
