@@ -82,7 +82,6 @@ cat > ${NEW_DAY_NAME}_test.go << EOF
 package main
 
 import (
-	"log"
 	"os"
 	"testing"
 )
