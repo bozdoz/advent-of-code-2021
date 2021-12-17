@@ -5,14 +5,61 @@
 Finally on go1.18, using generics.  Kind of hate it so far, but got to improve my BinaryToInt function: 
 
 ```go
+func BinaryToInt[T ~string](bin T) (int, error) {
+	s := string(bin)
+
+	val, err := strconv.ParseInt(s, 2, 64)
+
+	return int(val), err
+}
 ```
 
-Also first time using enums and `iota`.
+I have no idea where to find good information about generics.  I couldn't find any reference to the `~string`, but my IDE complained about not using it, and it worked!
 
-Created a custom type for Binary for getting head and tail from a given index, which made the use of generics helpful for the BinaryToInt function above.
+What upset me here, is that I wanted to use it with my custom `type Binary string`, which ought to be equivalent to type `string`.
 
-I believe this is my first day inheriting/extending struct types.
+I created the custom `Binary` type for getting head and tail from a given index, which made the use of generics helpful for the BinaryToInt function above.
 
+```go
+func (binary Binary) splitAt(index int) (Binary, Binary) {
+	return binary[:index], binary[index:]
+}
+```
+
+First time using enums and `iota`, and maybe I enjoyed using them, but it did make for long type/const definitions.
+
+I believe this is my first day inheriting/extending struct types, as well!
+
+```go
+// contains a literal value
+type LiteralValuePacket struct {
+	value int
+}
+
+// contains one or more packets
+type OperatorPacket struct {
+	lengthTypeId LengthTypeId
+	packets      []Packet
+}
+
+type Packet struct {
+	version int
+	typeId  TypeId
+	LiteralValuePacket
+	OperatorPacket
+}
+```
+
+This made live debugging more difficult/nested in the IDE, and I'm not sure how valuable it was, given that I did not create any methods for the other packet structs (I only used `Packet`).  But it was very easy to get and set the values in `Packet`, so maybe not a big deal.  In the future, I may only extend like this when I actually use the other types.
+
+```go
+func (packet *Packet) evaluateExpression() int {
+	if packet.typeId == TYPE_LITERAL {
+		// ! notice this isn't packet.LiteralValuePacket.value
+		return packet.value
+	}
+	//... 
+```
 
 ### Day 15
 
