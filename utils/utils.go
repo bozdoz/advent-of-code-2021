@@ -231,3 +231,11 @@ func MaxInt(nums ...int) int {
 
 	return max
 }
+
+func BinaryToInt[T ~string](bin T) (int, error) {
+	s := string(bin)
+
+	val, err := strconv.ParseInt(s, 2, 64)
+
+	return int(val), err
+}

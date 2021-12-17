@@ -31,11 +31,6 @@ func transpose(lines []string) [][]int {
 	return transposed
 }
 
-// maybe should be utility
-func binaryToInt(bin string) (int64, error) {
-	return strconv.ParseInt(bin, 2, 64)
-}
-
 func PartOne(lines []string) (int, error) {
 	half := float64(len(lines)) / float64(2)
 
@@ -55,19 +50,19 @@ func PartOne(lines []string) (int, error) {
 		}
 	}
 
-	gammaint, err := binaryToInt(gamma)
+	gammaint, err := utils.BinaryToInt(gamma)
 
 	if err != nil {
 		return -1, err
 	}
 
-	epsilonint, err := binaryToInt(epsilon)
+	epsilonint, err := utils.BinaryToInt(epsilon)
 
 	if err != nil {
 		return -1, err
 	}
 
-	return int(gammaint * epsilonint), nil
+	return gammaint * epsilonint, nil
 }
 
 func filter(arr []string, fnc func(val string, i int) bool) (out []string) {
@@ -131,19 +126,19 @@ func PartTwo(lines []string) (int, error) {
 		return -1, err
 	}
 
-	oxygenint, err := binaryToInt(oxygen)
+	oxygenint, err := utils.BinaryToInt(oxygen)
 
 	if err != nil {
 		return -1, err
 	}
 
-	co2int, err := binaryToInt(co2)
+	co2int, err := utils.BinaryToInt(co2)
 
 	if err != nil {
 		return -1, err
 	}
 
-	return int(oxygenint * co2int), nil
+	return oxygenint * co2int, nil
 }
 
 func main() {
