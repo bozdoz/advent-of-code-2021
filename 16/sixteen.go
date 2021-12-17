@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"time"
 
 	"bozdoz.com/aoc-2021/utils"
 )
@@ -56,6 +57,7 @@ func main() {
 
 	data := FileLoader(filename)
 
+	start := time.Now()
 	answer, err := PartOne(data)
 
 	if err != nil {
@@ -63,8 +65,9 @@ func main() {
 		return
 	}
 
-	fmt.Printf("Part One: %d \n", answer)
+	fmt.Printf("Part One: %d (%s) \n", answer, time.Since(start))
 
+	start = time.Now()
 	answer2, err := PartTwo(data)
 
 	if err != nil {
@@ -72,5 +75,5 @@ func main() {
 		return
 	}
 
-	fmt.Printf("Part Two: %d \n", answer2)
+	fmt.Printf("Part Two: %d (%s) \n", answer2, time.Since(start))
 }
