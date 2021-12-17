@@ -259,10 +259,10 @@ func (packet *Packet) evaluateExpression() int {
 	case TYPE_SUM:
 		return utils.Sum(values...)
 	case TYPE_PRODUCT:
-		product := values[0]
+		product := 1
 
-		for i := 1; i < len(values); i++ {
-			product *= values[i]
+		for _, val := range values {
+			product *= val
 		}
 
 		return product
