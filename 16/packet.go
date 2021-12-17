@@ -241,3 +241,51 @@ func (packet *Packet) versionSum() (sum int) {
 
 	return
 }
+
+// Part Two introduces operator logic
+func (packet *Packet) evaluateExpression() int {
+	if packet.typeId == TYPE_LITERAL {
+		return packet.value
+	}
+
+	values := []int{}
+
+	// recursively check nested packets
+	for _, subpacket := range packet.packets {
+		values = append(values, subpacket.evaluateExpression())
+	}
+
+	switch packet.typeId {
+	case TYPE_SUM:
+		return utils.Sum(values...)
+	case TYPE_PRODUCT:
+		product := values[0]
+
+		for i := 1; i < len(values); i++ {
+			product *= values[i]
+		}
+
+		return product
+	case TYPE_MIN:
+		return utils.MinInt(values...)
+	case TYPE_MAX:
+		return utils.MaxInt(values...)
+	case TYPE_GT:
+		if values[0] > values[1] {
+			return 1
+		}
+		return 0
+	case TYPE_LT:
+		if values[0] < values[1] {
+			return 1
+		}
+		return 0
+	case TYPE_EQ:
+		if values[0] == values[1] {
+			return 1
+		}
+		return 0
+	}
+
+	return 0
+}
