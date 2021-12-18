@@ -1,6 +1,43 @@
 # What Am I Learning Each Day?
 
+### Day 17
+
+Pulling out vector stuff from my read through [JavaScript Physics](https://github.com/bozdoz/physics-for-javascript-games-animation-simulations/blob/format-js/9781430263371/chapter5/vector2D.js).
+
+Decided to use `%v` in test logs instead of swapping back and forth for `%d` or `%s`.
+
+None of what I tried today worked, so I gave up and tried brute force; but what I found out is that I was completely overthinking the problem.  I was way too involved in the physics aspect of it, when it was really still a logic problem, solveable by iterating as much as possible.
+
+Found out that `go test .` omits logs unless tests fail; as opposed to just running `go test`.
+
+I got to use more generics with the `Vector` type, and used a type constraint (`Numeric`), which was quite easy compared to yesterday:
+
+```go
+type Numeric interface {
+	int | int8 | int16 | int32 | int64 |
+		uint | uint8 | uint16 | uint32 | uint64 |
+		float32 | float64
+}
+
+type Vector[T Numeric] struct {
+	x, y T
+}
+
+func (this *Vector[T]) add(vec Vector[T]) {
+	this.x += vec.x
+	this.y += vec.y
+}
+```
+
+The type structs were very plain: just some vectors and a bounding box for `Target`.
+
+Kept up with test-driven development again today; many unit tests.
+
+Really feel like I wasted an easy day by overthinking; maybe I'm worn out 🥱
+
 ### Day 16
+
+First day really doing test-driven development.  Added a lot of tests, and discovered how I could run individual tests: `go test -run Match.*This.*Regex`
 
 Finally on go1.18, using generics.  Kind of hate it so far, but got to improve my BinaryToInt function: 
 
@@ -14,7 +51,7 @@ func BinaryToInt[T ~string](bin T) (int, error) {
 }
 ```
 
-I have no idea where to find good information about generics.  I couldn't find any reference to the `~string`, but my IDE complained about not using it, and it worked!
+I have no idea where to find good information about generics.  I couldn't find any reference to the `~string`, but my IDE complained about not using it, and it worked! (**Update** It's called an approximation constraint)
 
 What upset me here, is that I wanted to use it with my custom `type Binary string`, which ought to be equivalent to type `string`.
 
