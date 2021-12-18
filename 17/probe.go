@@ -5,10 +5,6 @@ type Probe struct {
 	maxHeight                    int
 }
 
-type Target struct {
-	xmin, xmax, ymin, ymax int
-}
-
 var forceVec = Vector[int]{
 	x: -1,
 	y: -1,
@@ -52,11 +48,6 @@ func (probe *Probe) isLaunchSuccessful(target *Target) bool {
 // in Target, shopping...
 func (probe *Probe) isInTarget(target *Target) bool {
 	return target.contains(probe.position)
-}
-
-func (target *Target) contains(vec Vector[int]) bool {
-	return vec.x <= target.xmax && vec.x >= target.xmin &&
-		vec.y <= target.ymax && vec.y >= target.ymin
 }
 
 func (probe *Probe) missedTarget(target *Target) bool {
