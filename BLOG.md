@@ -1,5 +1,31 @@
 # What Am I Learning Each Day?
 
+### Day 18
+
+First time using `any`? Tried to do a self-referential Generic type, but that seemed impossible.
+
+```go
+type Element struct {
+	value int
+	pair  *Pair
+}
+
+type Pair struct {
+	left, right *Element
+	parent      *Pair
+}
+
+func (pair *Pair) append(something any) {
+	// ...
+}
+```
+
+I wanted the `something` var to be `*Pair | int`, but no clue how to make that work better.  Instead relied on a type switch, which works fine.
+
+Did test coverage today.
+
+Wrote my own JSON parser for parsing the pairs.
+
 ### Day 17
 
 Pulling out vector stuff from my read through [JavaScript Physics](https://github.com/bozdoz/physics-for-javascript-games-animation-simulations/blob/format-js/9781430263371/chapter5/vector2D.js).
