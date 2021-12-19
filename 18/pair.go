@@ -129,12 +129,11 @@ func (this *Pair) reduce() {
 	// 1. should I explode?
 	explodeMe := this.getNestedPairAtDepth(4)
 
-	fmt.Println("pair", this)
-
 	if explodeMe != nil {
-		fmt.Println("explode", explodeMe)
 		// do as he says
 		explodeMe.explode()
+
+		log.Println("After explode:", this)
 
 		// start again if something changed
 		this.reduce()
@@ -143,8 +142,9 @@ func (this *Pair) reduce() {
 		splitMe := this.getPairWithValueGTE(splitVal)
 
 		if splitMe != nil {
-			fmt.Println("split", splitMe)
 			splitMe.split(splitVal)
+
+			log.Println("After split:  ", this)
 
 			// start again if something changed
 			this.reduce()
