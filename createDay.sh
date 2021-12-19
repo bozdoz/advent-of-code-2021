@@ -114,7 +114,7 @@ func TestExampleOne(t *testing.T) {
 	}
 
 	if val != expected {
-		t.Logf("Answer should be %d, but got %d", expected, val)
+		t.Logf("Answer should be %v, but got %v", expected, val)
 		t.Fail()
 	}
 }
@@ -134,7 +134,7 @@ func TestExampleTwo(t *testing.T) {
 	}
 
 	if val != expected {
-		t.Logf("Answer should be %d, but got %d", expected, val)
+		t.Logf("Answer should be %v, but got %v", expected, val)
 		t.Fail()
 	}
 }
