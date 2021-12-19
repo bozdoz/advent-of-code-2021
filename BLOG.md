@@ -26,6 +26,8 @@ Did test coverage today.
 
 Wrote my own JSON parser for parsing the pairs.
 
+Several mistakes today... Getting sloppy.  More later maybe.
+
 ### Day 17
 
 Pulling out vector stuff from my read through [JavaScript Physics](https://github.com/bozdoz/physics-for-javascript-games-animation-simulations/blob/format-js/9781430263371/chapter5/vector2D.js).

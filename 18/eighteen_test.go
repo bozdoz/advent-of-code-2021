@@ -256,3 +256,20 @@ func TestStepByStep(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestPartTwo(t *testing.T) {
+	content := FileLoader("example.txt")
+	expected := 3993
+
+	result, err := PartTwo(content)
+
+	if err != nil {
+		t.Log("got err, but shouldn't have: ", err)
+		t.Fail()
+	}
+
+	if result != expected {
+		t.Logf("Answer should be %v, but got %v", expected, result)
+		t.Fail()
+	}
+}

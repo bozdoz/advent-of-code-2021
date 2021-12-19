@@ -19,20 +19,43 @@ func init() {
 }
 
 func PartOne(content []string) (output int, err error) {
-	fmt.Println("---PART ONE---")
 	curPair := parsePairs(content[0])
 
-	for _, data := range content[:1] {
-		log.Println("--- adding next ---")
+	for _, data := range content[1:] {
 		curPair = curPair.add(parsePairs(data))
-		log.Println("curPair", curPair)
 	}
 
 	return curPair.getMagnitude(), nil
 }
 
 func PartTwo(content []string) (output int, err error) {
-	return
+	pairs := []*Pair{}
+
+	max := 0
+
+	for _, data := range content {
+		pairs = append(pairs, parsePairs(data))
+	}
+
+	for _, pair := range pairs {
+		for _, next := range pairs {
+			if pair == next {
+				continue
+			}
+			// lazy copy
+			pairCopy := parsePairs(pair.String())
+			// lazy copy
+			nextCopy := parsePairs(next.String())
+
+			mag := pairCopy.add(nextCopy).getMagnitude()
+
+			if mag > max {
+				max = mag
+			}
+		}
+	}
+
+	return max, nil
 }
 
 func main() {
