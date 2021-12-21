@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 	"testing"
+
+	"bozdoz.com/aoc-2021/utils"
 )
 
 // show log output for tests only
@@ -15,15 +17,15 @@ func TestTicking(t *testing.T) {
 
 	probe.tick()
 
-	expectedPosition := Vector[int]{7, 2}
-	expectedVelocity := Vector[int]{6, 1}
+	expectedPosition := utils.NewVector(7, 2)
+	expectedVelocity := utils.NewVector(6, 1)
 
-	if !probe.position.isEqualTo(expectedPosition) {
+	if !probe.position.IsEqualTo(expectedPosition) {
 		t.Logf("Answer should be %v, but got %v", expectedPosition, probe.position)
 		t.Fail()
 	}
 
-	if !probe.velocity.isEqualTo(expectedVelocity) {
+	if !probe.velocity.IsEqualTo(expectedVelocity) {
 		t.Logf("Answer should be %v, but got %v", expectedPosition, probe.velocity)
 		t.Fail()
 	}
@@ -31,36 +33,36 @@ func TestTicking(t *testing.T) {
 	// tick again
 	probe.tick()
 
-	expectedPosition = Vector[int]{13, 3}
-	expectedVelocity = Vector[int]{5, 0}
+	expectedPosition = utils.NewVector(13, 3)
+	expectedVelocity = utils.NewVector(5, 0)
 
-	if !probe.position.isEqualTo(expectedPosition) {
+	if !probe.position.IsEqualTo(expectedPosition) {
 		t.Logf("Answer should be %v, but got %v", expectedPosition, probe.position)
 		t.Fail()
 	}
 
-	if !probe.velocity.isEqualTo(expectedVelocity) {
+	if !probe.velocity.IsEqualTo(expectedVelocity) {
 		t.Logf("Answer should be %v, but got %v", expectedPosition, probe.velocity)
 		t.Fail()
 	}
 }
 
 func TestVectorAdd(t *testing.T) {
-	a := Vector[int]{2, 3}
-	b := Vector[int]{-1, 10}
+	a := utils.NewVector(2, 3)
+	b := utils.NewVector(-1, 10)
 
-	a.add(b)
-	expected := Vector[int]{1, 13}
+	a = a.Add(b)
+	expected := utils.NewVector(1, 13)
 
-	if !a.isEqualTo(expected) {
+	if !a.IsEqualTo(expected) {
 		t.Logf("Answer should be %v, but got %v", expected, a)
 		t.Fail()
 	}
 
 	// b is unchanged
-	expected = Vector[int]{-1, 10}
+	expected = utils.NewVector(-1, 10)
 
-	if !b.isEqualTo(expected) {
+	if !b.IsEqualTo(expected) {
 		t.Logf("Answer should be %v, but got %v", expected, b)
 		t.Fail()
 	}
@@ -68,17 +70,17 @@ func TestVectorAdd(t *testing.T) {
 
 func TestTargetContain(t *testing.T) {
 	target := Target{20, 30, -10, -5}
-	good := []Vector[int]{
-		{20, -5},
-		{25, -7},
-		{30, -10},
+	good := []utils.Vector[int]{
+		{X: 20, Y: -5},
+		{X: 25, Y: -7},
+		{X: 30, Y: -10},
 	}
 
-	bad := []Vector[int]{
-		{19, -5},
-		{31, -5},
-		{15, -4},
-		{19, -4},
+	bad := []utils.Vector[int]{
+		{X: 19, Y: -5},
+		{X: 31, Y: -5},
+		{X: 15, Y: -4},
+		{X: 19, Y: -4},
 	}
 
 	for _, actual := range good {
@@ -97,27 +99,27 @@ func TestTargetContain(t *testing.T) {
 }
 
 func TestAngle(t *testing.T) {
-	vec := Vector[int]{5, 5}
+	vec := utils.NewVector(5, 5)
 
-	angle := vec.angleDegrees()
+	angle := vec.AngleDegrees()
 
 	if angle != 45 {
 		t.Logf("Answer should be %v, but wasn't: %v", 45, angle)
 		t.Fail()
 	}
 
-	vec = Vector[int]{0, 5}
+	vec = utils.NewVector(0, 5)
 
-	angle = vec.angleDegrees()
+	angle = vec.AngleDegrees()
 
 	if angle != 90 {
 		t.Logf("Answer should be %v, but wasn't: %v", 90, angle)
 		t.Fail()
 	}
 
-	vec = Vector[int]{5, 0}
+	vec = utils.NewVector(5, 0)
 
-	angle = vec.angleDegrees()
+	angle = vec.AngleDegrees()
 
 	if angle != 0 {
 		t.Logf("Answer should be %v, but wasn't: %v", 0, angle)

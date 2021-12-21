@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"bozdoz.com/aoc-2021/utils"
+)
 
 // Target is basically a bbox
 type Bbox struct {
@@ -55,7 +59,7 @@ func (target *Target) practice(forEach func(probe *Probe, success bool)) {
 	}
 }
 
-func (target *Target) contains(vec Vector[int]) bool {
-	return vec.x <= target.xmax && vec.x >= target.xmin &&
-		vec.y <= target.ymax && vec.y >= target.ymin
+func (target *Target) contains(vec utils.Vector[int]) bool {
+	return vec.X <= target.xmax && vec.X >= target.xmin &&
+		vec.Y <= target.ymax && vec.Y >= target.ymin
 }
