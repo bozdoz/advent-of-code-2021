@@ -1,35 +1,34 @@
 package main
 
+import "bozdoz.com/aoc-2021/utils"
+
 type Probe struct {
-	position, velocity, forceVec Vector[int]
+	position, velocity, forceVec utils.Vector[int]
 	maxHeight                    int
 }
 
-var forceVec = Vector[int]{
-	x: -1,
-	y: -1,
-}
+var forceVec = utils.NewVector(-1, -1)
 
 func newProbe(px, py, vx, vy int) *Probe {
 	return &Probe{
-		position: Vector[int]{px, py},
-		velocity: Vector[int]{vx, vy},
+		position: utils.NewVector(px, py),
+		velocity: utils.NewVector(vx, vy),
 		forceVec: forceVec,
 	}
 }
 
 // advance to next step
 func (probe *Probe) tick() {
-	probe.position.add(probe.velocity)
+	probe.position = probe.position.Add(probe.velocity)
 
 	// "x velocity...does not change if it is already 0"
-	if probe.velocity.x == 0 {
-		probe.forceVec.x = 0
+	if probe.velocity.X == 0 {
+		probe.forceVec.X = 0
 	}
-	probe.velocity.add(probe.forceVec)
+	probe.velocity = probe.velocity.Add(probe.forceVec)
 
-	if probe.position.y > probe.maxHeight {
-		probe.maxHeight = probe.position.y
+	if probe.position.Y > probe.maxHeight {
+		probe.maxHeight = probe.position.Y
 	}
 }
 
@@ -51,5 +50,5 @@ func (probe *Probe) isInTarget(target *Target) bool {
 }
 
 func (probe *Probe) missedTarget(target *Target) bool {
-	return probe.position.x > target.xmax || probe.position.y < target.ymin
+	return probe.position.X > target.xmax || probe.position.Y < target.ymin
 }
