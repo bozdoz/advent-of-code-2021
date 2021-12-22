@@ -100,6 +100,9 @@ func needsReworking3dEqual(t *testing.T) {
 }
 
 func Test3dFull(t *testing.T) {
+	// TODO: Day 19.1
+	t.SkipNow()
+
 	scanners := scanner3d.ParseScanners(FileLoader("example3d.txt"))
 	expected := 79
 
