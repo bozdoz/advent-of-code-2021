@@ -12,7 +12,7 @@ import (
 // fill in the answers for each part (as they come)
 var answers = map[int]int{
 	1: 35,
-	2: 0,
+	2: 3351,
 }
 
 var vals = FileLoader("example.txt")
@@ -47,6 +47,8 @@ func TestSinglePixel(t *testing.T) {
 		t.Log("next image infinite pixels should be '#'")
 		t.Fail()
 	}
+
+	log.Println(image.String())
 
 	newImage := image.enhance(enhancer)
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 
 	"bozdoz.com/aoc-2021/utils"
 )
@@ -14,23 +15,29 @@ var log = utils.Logger()
 
 func init() {
 	// disable logs when running (enabled in _test)
-	// log.SetOutput(ioutil.Discard)
+	log.SetOutput(ioutil.Discard)
 }
 
 func PartOne(content string) (output int, err error) {
 	image, enhancer := parseInput(content)
 
-	// log.Println(image)
+	log.Println(image)
 	newImage := image.enhance(enhancer)
-	// log.Println(newImage)
+	log.Println(newImage)
 	nextImage := newImage.enhance(enhancer)
-	// log.Println(nextImage)
+	log.Println(nextImage)
 
 	return nextImage.litCount(), nil
 }
 
 func PartTwo(content string) (output int, err error) {
-	return
+	image, enhancer := parseInput(content)
+
+	for i := 0; i < 50; i++ {
+		image = image.enhance(enhancer)
+	}
+
+	return image.litCount(), nil
 }
 
 func main() {

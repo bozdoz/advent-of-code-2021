@@ -1,5 +1,62 @@
 # What Am I Learning Each Day?
 
+### Day 20
+
+Got it.  Tried a `map[int]map[int]bool` at the beginning but I misunderstood the problem.  It was actually quite simple once I got it.  First time with a defer statement, and a go routine, and channels, and using the `sync` package for a `WaitGroup`.
+
+```go
+var wg sync.WaitGroup
+
+stream := make(chan Worker)
+
+for y := 0; y < image.height; y++ {
+	for x := 0; x < image.width; x++ {
+		wg.Add(1)
+		go func(r, c int) {
+			defer wg.Done()
+			image.enhancePixel(r, c, stream)
+		}(y, x)
+	}
+}
+
+go func() {
+	wg.Wait()
+	close(stream)
+}()
+
+for data := range stream {
+	x, y, index := data.x, data.y, data.index
+	if enhancer[index] == '#' {
+		newImage.set(x+1, y+1, '1')
+	} else {
+		newImage.set(x+1, y+1, '0')
+	}
+}
+```
+
+I don't think I really needed it, but who knows!  Might be cool to benchmark it without.
+
+The concept of infinite pixels really threw me, only because I realized the input data was different from the example data.  And like people mentioned on reddit, the infinite pixels flash every iteration.  Thus this type data structure:
+
+```go
+type Image struct {
+	pixels            []rune
+	width, height     int
+	infinitePixel     string
+	nextInfinitePixel string
+}
+```
+
+Each enhancement the pixels swap (conditionally).
+
+Just did a 2d array for the pixels, which is always fun.  I realized I have to actually take all pixels into account; not just lit ones.
+
+Also when I tried to manipulate the next image pixels in the go routines I got this:
+
+> "fatal error: concurrent map read and map write"
+
+So I only wrote to the new image pixels after waiting for data to come back through the channel
+
 ### Day 19
 
 How awful is it to extract a large type into a utility package? The fields all have to be uppercase in order for them to be accessed by another package.
