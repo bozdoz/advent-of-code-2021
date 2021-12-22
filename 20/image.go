@@ -9,12 +9,11 @@ import (
 
 type ImageEnhancer string
 
-// pixel grid
 type Image struct {
-	pixels                    map[int]map[int]bool
-	width, height, minx, miny int
-	infinitePixel             string
-	nextInfinitePixel         string
+	pixels            []rune
+	width, height     int
+	infinitePixel     string
+	nextInfinitePixel string
 }
 
 func parseInput(data string) (image *Image, enhancer ImageEnhancer) {
@@ -26,47 +25,48 @@ func parseInput(data string) (image *Image, enhancer ImageEnhancer) {
 
 	lines := strings.Split(parts[1], "\n")
 	nextInfinitePixel := string(enhancer[0])
+	height := len(lines)
+	width := len(lines[0])
+	pixels := make([]rune, height*width)
 
 	image = &Image{
-		pixels:            map[int]map[int]bool{},
-		height:            len(lines),
-		width:             len(lines[0]),
-		minx:              0,
-		miny:              0,
+		pixels:            pixels,
+		height:            height,
+		width:             width,
 		infinitePixel:     ".",
 		nextInfinitePixel: nextInfinitePixel,
 	}
 
 	for i, line := range lines {
 		for j, char := range line {
+			val := '0'
 			if char == '#' {
-				image.set(i, j)
+				val = '1'
 			}
+			image.pixels[i*width+j] = val
 		}
 	}
 
 	return
 }
 
-func (image *Image) set(x, y int) {
-	if (*image).pixels[x] == nil {
-		(*image).pixels[x] = map[int]bool{}
-	}
-	(*image).pixels[x][y] = true
+func (image *Image) set(x, y int, val rune) {
+	image.pixels[x*image.width+y] = val
 }
 
-// first time using recover and defer?
-func (image *Image) get(x, y int) bool {
-	defer recover()
+func (image *Image) get(x, y int) rune {
+	if x < 0 || x >= image.width || y < 0 || y >= image.height {
+		if image.infinitePixel == "." {
+			return '0'
+		}
+		return '1'
+	}
 
-	return (*image).pixels[x][y]
+	return image.pixels[x*image.width+y]
 }
 
 func (image *Image) isInfinitePixel(i, j int) bool {
-	return i < image.minx ||
-		i > (image.width+image.minx) ||
-		j < image.miny ||
-		j > (image.height+image.miny)
+	return false
 }
 
 func (image *Image) getBinaryForPixel(x, y int) int {
@@ -74,12 +74,7 @@ func (image *Image) getBinaryForPixel(x, y int) int {
 
 	for i := x - 1; i <= x+1; i++ {
 		for j := y - 1; j <= y+1; j++ {
-			lit := image.get(i, j)
-			if lit || (image.infinitePixel != "." && image.isInfinitePixel(i, j)) {
-				binary += "1"
-			} else {
-				binary += "0"
-			}
+			binary += string(image.get(i, j))
 		}
 	}
 
@@ -108,12 +103,13 @@ func (ref Image) enhancePixel(x, y int, stream chan Worker) {
 
 // need to update pixels all around each lit pixel
 func (image Image) enhance(enhancer ImageEnhancer) (newImage *Image) {
+	width := image.width + 2
+	height := image.height + 2
+	pixels := make([]rune, width*height)
 	newImage = &Image{
-		pixels:        map[int]map[int]bool{},
-		width:         image.width + 1,
-		height:        image.height + 1,
-		minx:          image.minx - 1,
-		miny:          image.miny - 1,
+		pixels:        pixels,
+		width:         width,
+		height:        height,
 		infinitePixel: image.nextInfinitePixel,
 	}
 
@@ -128,13 +124,13 @@ func (image Image) enhance(enhancer ImageEnhancer) (newImage *Image) {
 
 	stream := make(chan Worker)
 
-	for r, row := range image.pixels {
-		for c := range row {
+	for y := 0; y < image.height; y++ {
+		for x := 0; x < image.width; x++ {
 			wg.Add(1)
 			go func(r, c int) {
 				defer wg.Done()
 				image.enhancePixel(r, c, stream)
-			}(r, c)
+			}(y, x)
 		}
 	}
 
@@ -146,25 +142,23 @@ func (image Image) enhance(enhancer ImageEnhancer) (newImage *Image) {
 	for data := range stream {
 		x, y, index := data.x, data.y, data.index
 		if enhancer[index] == '#' {
-			newImage.set(x, y)
+			newImage.set(x+1, y+1, '1')
+		} else {
+			newImage.set(x+1, y+1, '0')
 		}
 	}
 
 	return
 }
 
-func (image Image) litCount() (sum int) {
-	for _, row := range image.pixels {
-		sum += len(row)
-	}
-
-	return
+func (image Image) litCount() int {
+	return strings.Count(string(image.pixels), "1")
 }
 
 func (image *Image) String() (output string) {
-	for y := image.miny; y < image.height; y++ {
-		for x := image.minx; x < image.width; x++ {
-			if image.get(y, x) {
+	for y := 0; y < image.height; y++ {
+		for x := 0; x < image.width; x++ {
+			if image.get(y, x) == '1' {
 				output += "#"
 			} else {
 				output += "."
