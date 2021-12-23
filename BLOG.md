@@ -1,5 +1,48 @@
 # What Am I Learning Each Day?
 
+### Day 21
+
+First time using an interface with a struct:
+
+```go
+// TODO: kind of unnecessary with the new game methods
+type Dice interface {
+	roll() interface{}
+	getRolls() int
+}
+
+// 1-indexed auto-incremented die
+type DeterministicDice struct {
+	sides, current, rolls int
+}
+
+// a hell-scape of exponential increments
+type QuantumDice struct {
+	sides int
+}
+
+type Game struct {
+	players    []*Player
+	dice       Dice
+	turn, goal int
+}
+
+func (game *Game) useDice(dice Dice) {
+	game.dice = dice
+}
+
+// finally
+game.useDice(&DeterministicDice{
+	sides:   100,
+	current: 1,
+})
+```
+
+But then realized it wouldn't work.  The quantum dice changes the entire game.  Wasn't sure how to get it done, so I looked up hints/solutions on reddit.
+
+PartTwo 25.798s *without* a cache.
+         0.174s *with* a cache.
+
 ### Day 20
 
 Got it.  Tried a `map[int]map[int]bool` at the beginning but I misunderstood the problem.  It was actually quite simple once I got it.  First time with a defer statement, and a go routine, and channels, and using the `sync` package for a `WaitGroup`.
