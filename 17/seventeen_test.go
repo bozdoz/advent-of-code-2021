@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"bozdoz.com/aoc-2021/utils"
+	"bozdoz.com/aoc-2021/types"
 )
 
 // show log output for tests only
@@ -17,8 +17,8 @@ func TestTicking(t *testing.T) {
 
 	probe.tick()
 
-	expectedPosition := utils.NewVector(7, 2)
-	expectedVelocity := utils.NewVector(6, 1)
+	expectedPosition := types.NewVector(7, 2)
+	expectedVelocity := types.NewVector(6, 1)
 
 	if !probe.position.IsEqualTo(expectedPosition) {
 		t.Logf("Answer should be %v, but got %v", expectedPosition, probe.position)
@@ -33,8 +33,8 @@ func TestTicking(t *testing.T) {
 	// tick again
 	probe.tick()
 
-	expectedPosition = utils.NewVector(13, 3)
-	expectedVelocity = utils.NewVector(5, 0)
+	expectedPosition = types.NewVector(13, 3)
+	expectedVelocity = types.NewVector(5, 0)
 
 	if !probe.position.IsEqualTo(expectedPosition) {
 		t.Logf("Answer should be %v, but got %v", expectedPosition, probe.position)
@@ -48,11 +48,11 @@ func TestTicking(t *testing.T) {
 }
 
 func TestVectorAdd(t *testing.T) {
-	a := utils.NewVector(2, 3)
-	b := utils.NewVector(-1, 10)
+	a := types.NewVector(2, 3)
+	b := types.NewVector(-1, 10)
 
 	a = a.Add(b)
-	expected := utils.NewVector(1, 13)
+	expected := types.NewVector(1, 13)
 
 	if !a.IsEqualTo(expected) {
 		t.Logf("Answer should be %v, but got %v", expected, a)
@@ -60,7 +60,7 @@ func TestVectorAdd(t *testing.T) {
 	}
 
 	// b is unchanged
-	expected = utils.NewVector(-1, 10)
+	expected = types.NewVector(-1, 10)
 
 	if !b.IsEqualTo(expected) {
 		t.Logf("Answer should be %v, but got %v", expected, b)
@@ -70,13 +70,13 @@ func TestVectorAdd(t *testing.T) {
 
 func TestTargetContain(t *testing.T) {
 	target := Target{20, 30, -10, -5}
-	good := []utils.Vector[int]{
+	good := []types.Vector[int]{
 		{X: 20, Y: -5},
 		{X: 25, Y: -7},
 		{X: 30, Y: -10},
 	}
 
-	bad := []utils.Vector[int]{
+	bad := []types.Vector[int]{
 		{X: 19, Y: -5},
 		{X: 31, Y: -5},
 		{X: 15, Y: -4},
@@ -99,7 +99,7 @@ func TestTargetContain(t *testing.T) {
 }
 
 func TestAngle(t *testing.T) {
-	vec := utils.NewVector(5, 5)
+	vec := types.NewVector(5, 5)
 
 	angle := vec.AngleDegrees()
 
@@ -108,7 +108,7 @@ func TestAngle(t *testing.T) {
 		t.Fail()
 	}
 
-	vec = utils.NewVector(0, 5)
+	vec = types.NewVector(0, 5)
 
 	angle = vec.AngleDegrees()
 
@@ -117,7 +117,7 @@ func TestAngle(t *testing.T) {
 		t.Fail()
 	}
 
-	vec = utils.NewVector(5, 0)
+	vec = types.NewVector(5, 0)
 
 	angle = vec.AngleDegrees()
 

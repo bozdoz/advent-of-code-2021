@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"strings"
 
+	"bozdoz.com/aoc-2021/types"
 	"bozdoz.com/aoc-2021/utils"
 )
 
 type Beacon2d struct {
-	position utils.Vector[int]
+	position types.Vector[int]
 	edges    map[string]bool
 }
 
@@ -42,7 +43,7 @@ func ParseScanners(data []string) []*Scanner {
 			}
 
 			curScanner.beacons = append(curScanner.beacons, &Beacon2d{
-				position: utils.Vector[int]{X: x, Y: y},
+				position: types.Vector[int]{X: x, Y: y},
 			})
 		}
 	}

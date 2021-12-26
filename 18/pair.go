@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"bozdoz.com/aoc-2021/types"
 )
 
 type Element struct {
@@ -42,34 +44,10 @@ func (pair *Pair) append(something any) {
 	}
 }
 
-type Stack []*Pair
-
-func (stack *Stack) push(pair *Pair) {
-	*stack = append(*stack, pair)
-}
-
-func (stack *Stack) pop() (pair *Pair) {
-	n := len(*stack) - 1
-	last := (*stack)[n]
-
-	*stack = (*stack)[:n]
-
-	return last
-}
-
-func (stack *Stack) peek() (pair *Pair) {
-	n := len(*stack) - 1
-	if n < 0 {
-		return nil
-	}
-
-	return (*stack)[n]
-}
-
 func parsePairs(data string) *Pair {
 	dec := json.NewDecoder(strings.NewReader(data))
 	// keep track of nested pairs
-	stack := &Stack{}
+	stack := &types.Stack[Pair]{}
 
 	var cur *Pair
 
@@ -87,12 +65,12 @@ func parsePairs(data string) *Pair {
 			// start a new pair
 			cur = &Pair{}
 			// add it to the stack: LIFO
-			stack.push(cur)
+			stack.Push(cur)
 		case json.Delim(']'):
 			// signals this pair is complete
-			lastPair := stack.pop()
+			lastPair := stack.Pop()
 			// previous pair becomes current pair
-			cur = stack.peek()
+			cur = stack.Peek()
 
 			if cur != nil {
 				// last pair is appended to current pair
@@ -152,23 +130,6 @@ func (this *Pair) reduce() {
 	}
 }
 
-type Queue []*Pair
-
-func (queue *Queue) shift() *Pair {
-	if len(*queue) < 0 {
-		return nil
-	}
-
-	first := (*queue)[0]
-	*queue = (*queue)[1:]
-
-	return first
-}
-
-func (queue *Queue) push(pair *Pair) {
-	*queue = append(*queue, pair)
-}
-
 func (this *Pair) isNthChild(n int) bool {
 	// check if has n number of parents
 	cur := this
@@ -186,10 +147,10 @@ func (this *Pair) isNthChild(n int) bool {
 
 // finds the first/left-most pair at a given depth
 func (this *Pair) getNestedPairAtDepth(depth int) *Pair {
-	queue := Queue{this}
+	queue := types.Queue[Pair]{this}
 
 	for len(queue) > 0 {
-		cur := queue.shift()
+		cur := queue.Shift()
 
 		if cur == nil {
 			continue
@@ -200,8 +161,8 @@ func (this *Pair) getNestedPairAtDepth(depth int) *Pair {
 		}
 
 		// check nested pairs
-		queue.push(cur.left.pair)
-		queue.push(cur.right.pair)
+		queue.Push(cur.left.pair)
+		queue.Push(cur.right.pair)
 	}
 
 	return nil

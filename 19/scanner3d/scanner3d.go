@@ -5,14 +5,15 @@ import (
 	"sort"
 	"strings"
 
+	"bozdoz.com/aoc-2021/types"
 	"bozdoz.com/aoc-2021/utils"
 )
 
 const minSharedBeacons = 12
 
 type Beacon3d struct {
-	position utils.Vector3d
-	edges    map[string][]utils.Vector3d
+	position types.Vector3d
+	edges    map[string][]types.Vector3d
 }
 
 type Scanner struct {
@@ -45,7 +46,7 @@ func ParseScanners(data []string) []*Scanner {
 			}
 
 			curScanner.Beacons = append(curScanner.Beacons, &Beacon3d{
-				position: utils.Vector3d{X: x, Y: y, Z: z},
+				position: types.Vector3d{X: x, Y: y, Z: z},
 			})
 		}
 	}
@@ -59,7 +60,7 @@ func ParseScanners(data []string) []*Scanner {
 
 func (scanner *Scanner) updateEdges() {
 	for _, a := range scanner.Beacons {
-		a.edges = map[string][]utils.Vector3d{}
+		a.edges = map[string][]types.Vector3d{}
 		for _, b := range scanner.Beacons {
 			if a == b {
 				continue
@@ -79,7 +80,7 @@ func absInt(v int) int {
 
 // removes negative signs so we can get the un-oriented numbers
 // for somewhat more efficient searching
-func getVectorKey(vector utils.Vector3d) string {
+func getVectorKey(vector types.Vector3d) string {
 	sorted := []int{absInt(vector.X), absInt(vector.Y), absInt(vector.Z)}
 	sort.Ints(sorted)
 	return fmt.Sprint(sorted[0], sorted[1], sorted[2])
@@ -87,7 +88,7 @@ func getVectorKey(vector utils.Vector3d) string {
 
 // edges could have different orientations: +-x,+-y,+-z
 // AND the number could appear anywhere
-func (this *Beacon3d) findEdge(edge utils.Vector3d) bool {
+func (this *Beacon3d) findEdge(edge types.Vector3d) bool {
 	edgeStr := getVectorKey(edge)
 	_, ok := this.edges[edgeStr]
 
@@ -175,7 +176,7 @@ func addEdge(a *Beacon3d, b *Beacon3d) {
 
 	if a.edges == nil {
 		// TODO: still no idea when this happens
-		a.edges = map[string][]utils.Vector3d{}
+		a.edges = map[string][]types.Vector3d{}
 	}
 
 	a.edges[key] = append(a.edges[key], edge)
@@ -186,7 +187,7 @@ func (scanner *Scanner) AddBeacons(beacons []*Beacon3d) {
 
 	// update edges just for new beacons
 	for _, a := range beacons {
-		a.edges = map[string][]utils.Vector3d{}
+		a.edges = map[string][]types.Vector3d{}
 		for _, b := range scanner.Beacons {
 			if a == b {
 				continue
