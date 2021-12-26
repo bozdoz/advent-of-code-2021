@@ -470,6 +470,13 @@ Slices are headers describing contiguous sections of backing arrays.  They just 
 
 So the capacity of the path which was passed recursively to the traverse function was probably changing.  And the path itself was just a header for an array which held the underlying data.  So it was the same header being manipulated.  Explicitly adding a `copy()` I think was the right answer.
 
+**Third Update**
+
+I was [helped on reddit](https://www.reddit.com/r/adventofcode/comments/rfhcjm/comment/hohxxgc/?utm_source=reddit&utm_medium=web2x&context=3) with a suggestion to use `append` after all, instead of copy():
+
+> Instead of copying the path at every possible point, just copy it when you append it to your slice of paths.
+> Note that I like to copy a slice using append rather than creating a new slice an then using copy. For example, to copy a slice of bytes, I might write something like append([]byte{}, xs...). It's shorter, doesn't need a new variable declaration, and I personally find copy confusing.
+
 ### Day 11
 
 Felt better about today's puzzle.  Seemed complex enough to earn my attention and respect.
