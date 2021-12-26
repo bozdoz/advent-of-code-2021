@@ -82,7 +82,7 @@ func FuzzVolume(f *testing.F) {
 func TestExampleSmall(t *testing.T) {
 	expected := 39
 
-	grid := &Grid{}
+	grid := &Cubes{}
 
 	grid.parseInstructions(FileLoader("examplesmall.txt"), true)
 
@@ -95,7 +95,7 @@ func TestExampleSmall(t *testing.T) {
 }
 
 func TestLightsOn(t *testing.T) {
-	grid := &Grid{}
+	grid := &Cubes{}
 	input := []string{}
 	expected := makeCube(-41, 9, -7, 43, -33, 15).volume()
 
