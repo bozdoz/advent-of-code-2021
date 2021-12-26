@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"bozdoz.com/aoc-2021/utils"
+	"bozdoz.com/aoc-2021/types"
 )
 
 // Target is basically a bbox
@@ -59,7 +59,7 @@ func (target *Target) practice(forEach func(probe *Probe, success bool)) {
 	}
 }
 
-func (target *Target) contains(vec utils.Vector[int]) bool {
+func (target *Target) contains(vec types.Vector[int]) bool {
 	return vec.X <= target.xmax && vec.X >= target.xmin &&
 		vec.Y <= target.ymax && vec.Y >= target.ymin
 }

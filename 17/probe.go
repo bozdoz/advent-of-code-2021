@@ -1,18 +1,18 @@
 package main
 
-import "bozdoz.com/aoc-2021/utils"
+import "bozdoz.com/aoc-2021/types"
 
 type Probe struct {
-	position, velocity, forceVec utils.Vector[int]
+	position, velocity, forceVec types.Vector[int]
 	maxHeight                    int
 }
 
-var forceVec = utils.NewVector(-1, -1)
+var forceVec = types.NewVector(-1, -1)
 
 func newProbe(px, py, vx, vy int) *Probe {
 	return &Probe{
-		position: utils.NewVector(px, py),
-		velocity: utils.NewVector(vx, vy),
+		position: types.NewVector(px, py),
+		velocity: types.NewVector(vx, vy),
 		forceVec: forceVec,
 	}
 }
