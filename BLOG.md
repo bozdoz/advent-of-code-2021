@@ -1,5 +1,57 @@
 # What Am I Learning Each Day?
 
+### Day 22
+
+First [Fuzz test](https://go.dev/doc/fuzz/):
+
+```go
+func FuzzVolume(f *testing.F) {
+	f.Add(10, 10, 10, 10, 10, 10, true)
+
+	f.Fuzz(func(t *testing.T, x1, x2, y1, y2, z1, z2 int, onoff bool) {
+		out := (&Cube{x1, x2, y1, y2, z1, z2, onoff}).volume()
+
+		if out < 1 {
+			t.Fatalf("shouldn't have a negative cube, got %v", out)
+		}
+	})
+}
+```
+
+in this situation it somehow did result in both a negative number and a `0`, so I altered the function, and maybe that's a good thing.
+
+Finally found a solution for Part Two, similar to this python solution, which I needed to reference: https://www.reddit.com/r/adventofcode/comments/rmbp88/2021_day_22_how_to_think_about_the_problem/hpmeisa/?context=3
+
+This was my initial/general logic for measuring volume of intersecting cubes: https://www.reddit.com/r/adventofcode/comments/rns96r/2021_day_22go_help_understanding_where_my_logic/
+
+I needed some amount of recursion to deduplicate the discounted value of intersecting intersections (and their intersections, and so on...)
+
+I was able to figure out where I was going wrong by creating this test: 
+
+```go
+func TestLightsOn(t *testing.T) {
+	grid := &Grid{}
+	input := []string{}
+	expected := makeCube(-41, 9, -7, 43, -33, 15).volume()
+
+	for range make([]int, 10) {
+		input = append(input, "on x=-41..9,y=-7..43,z=-33..15")
+	}
+
+	grid.parseInstructions(input, true)
+	count := grid.count()
+
+	if count != expected {
+		t.Logf("expected %v, got %v", expected, count)
+		t.Fail()
+	}
+}
+```
+
+Basically I tested a single cube that overlaps itself multiple times: should always equal it's own volume.
+
+I also tried to cache the cubes at one point, to discount identical cubes, but I'm not sure that always made sense.
+
 ### Day 21
 
 First time using an interface with a struct:
