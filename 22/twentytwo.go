@@ -22,7 +22,7 @@ func init() {
 func PartOne(content []string) (output int, err error) {
 	// clamped to -50,50
 	clampData := true
-	grid := &Grid{}
+	grid := &Cubes{}
 	grid.parseInstructions(content, clampData)
 
 	return grid.count(), nil
@@ -30,7 +30,7 @@ func PartOne(content []string) (output int, err error) {
 
 func PartTwo(content []string) (output int, err error) {
 	clampData := false
-	grid := &Grid{}
+	grid := &Cubes{}
 	grid.parseInstructions(content, clampData)
 
 	return grid.count(), nil

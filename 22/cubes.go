@@ -9,14 +9,11 @@ import (
 type Cube struct {
 	x1, x2, y1, y2, z1, z2 int
 	isOn                   bool
-	intersections          []*Cube
 }
 
-type Grid struct {
-	cubes []*Cube
-}
+type Cubes []*Cube
 
-func (grid *Grid) parseInstructions(data []string, shouldClamp bool) {
+func (cubes *Cubes) parseInstructions(data []string, shouldClamp bool) {
 	for _, line := range data {
 		var ok bool
 		var onoff string
@@ -54,7 +51,7 @@ func (grid *Grid) parseInstructions(data []string, shouldClamp bool) {
 			isOn: onoff == "on",
 		}
 
-		grid.cubes = append(grid.cubes, cube)
+		*cubes = append(*cubes, cube)
 	}
 
 	return
@@ -121,44 +118,44 @@ func (cube *Cube) intersection(other *Cube) *Cube {
 	}
 }
 
-func countLitCubes(cubes []*Cube) (sum int) {
+func (cubes *Cubes) count() (sum int) {
 	// resolve intersections backwards
-	for i := len(cubes) - 1; i >= 0; i-- {
-		cube := cubes[i]
+	for i := len(*cubes) - 1; i >= 0; i-- {
+		cube := (*cubes)[i]
 
-		// TODO: really?!
+		// the volume of "off" cubes are never counted
+		// only subtracted from the volumes of "on" cubes
 		if !cube.isOn {
 			continue
 		}
 
-		// get all overlapping cubes (forwards)
-		for _, next := range cubes[i+1:] {
-			if next == nil {
-				continue
-			}
+		intersections := &Cubes{}
 
+		// get all overlapping cubes (forwards)
+		for _, next := range (*cubes)[i+1:] {
 			intersection := cube.intersection(next)
 
 			if intersection == nil {
+				// did not intersect
 				continue
 			}
 
-			// TODO: always takes the parent property?
-			intersection.isOn = true
+			// in recursive calls, "isOn" is synonymous with "shouldCountVolume"
+			// as in, even if it's "off" we should calculate the total volume
+			// of the intersections
+			shouldCountVolume := true
+			intersection.isOn = shouldCountVolume
 
 			// if there is an intersection save it, and
 			// reverse all intersections of the cubes intersections
-			cube.intersections = append(cube.intersections, intersection)
+			// i.e. don't count intersecting parts twice, and don't
+			// discount intersecting parts twice.
+			*intersections = append(*intersections, intersection)
 		}
 
 		sum += cube.volume()
-		sum -= countLitCubes(cube.intersections)
+		sum -= intersections.count()
 	}
 
 	return
-}
-
-// TODO: would love to do a spatial index on these cubes
-func (grid *Grid) count() int {
-	return countLitCubes(grid.cubes)
 }
