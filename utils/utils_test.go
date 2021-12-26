@@ -44,16 +44,6 @@ func TestMedian(t *testing.T) {
 	}
 }
 
-func TestMode(t *testing.T) {
-	expected := 3
-	val := Mode(vals)
-
-	if val != expected {
-		t.Logf("Answer should be %d, but got %d", expected, val)
-		t.Fail()
-	}
-}
-
 func TestSum(t *testing.T) {
 	expected := 58
 	val := Sum(vals...)
