@@ -83,11 +83,7 @@ func (cave *Cave) connect(nextCave *Cave) {
 
 // recursive function to continually navigate through connected caves
 // saves all paths that end in "end" to the CaveSystem.paths
-func (caveSys *CaveSystem) traverse(prevPath Path) {
-	path := make(Path, len(prevPath))
-
-	copy(path, prevPath)
-
+func (caveSys *CaveSystem) traverse(path Path) {
 	lastCave := path[len(path)-1]
 
 	for _, nextCave := range lastCave.flowsInto {
@@ -97,7 +93,8 @@ func (caveSys *CaveSystem) traverse(prevPath Path) {
 
 		updatedPath := append(path, nextCave)
 		if nextCave.name == end {
-			caveSys.paths = append(caveSys.paths, updatedPath)
+			// nested append with the spread syntax creates a copy of the slice
+			caveSys.paths = append(caveSys.paths, append(Path{}, updatedPath...))
 		} else {
 			caveSys.traverse(updatedPath)
 		}
