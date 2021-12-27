@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"bozdoz.com/aoc-2021/types"
 	"bozdoz.com/aoc-2021/utils"
 )
 
@@ -108,23 +109,23 @@ func (cave *Cave) updateNeighbours() {
 }
 
 func (cave *Cave) findAllPaths() {
-	pq := make(PriorityQueue, cave.height*cave.width)
+	pq := make(types.PriorityQueue[Cell], cave.height*cave.width)
 
 	for r, row := range cave.grid {
 		for c, cell := range row {
 			index := r*cave.width + c
-			pq[index] = &Item{
-				value:    cell,
-				priority: cell.distance,
-				index:    index,
-			}
+			pq.NewItem(
+				cell,
+				cell.distance,
+				index,
+			)
 		}
 	}
 
 	heap.Init(&pq)
 
 	for pq.Len() > 0 {
-		cell := heap.Pop(&pq).(*Item).value
+		cell := pq.Get()
 
 		for i := range cell.neighbours {
 			neighbour := cell.neighbours[i]
@@ -140,7 +141,7 @@ func (cave *Cave) findAllPaths() {
 			)
 
 			// hide the magic in the priority queue
-			pq.update(neighbour)
+			pq.Update(neighbour, neighbour.distance)
 		}
 
 		cell.visited = true
