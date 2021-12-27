@@ -1,13 +1,13 @@
-package main
+package types
 
 import "container/heap"
 
 /** copied entirely from https://pkg.go.dev/container/heap@go1.17.5 */
 
 // An Item is something we manage in a priority queue.
-type Item struct {
+type Item[T any] struct {
 	// The value of the item; arbitrary.
-	value *Cell
+	value *T
 	// The priority of the item in the queue.
 	priority int
 	// The index is needed by update and is maintained by the heap.Interface methods.
@@ -16,29 +16,37 @@ type Item struct {
 }
 
 // A PriorityQueue implements heap.Interface and holds Items.
-type PriorityQueue []*Item
+type PriorityQueue[T any] []*Item[T]
 
-func (pq PriorityQueue) Len() int { return len(pq) }
+func (pq *PriorityQueue[T]) NewItem(value *T, priority, index int) {
+	(*pq)[index] = &Item[T]{
+		value,
+		priority,
+		index,
+	}
+}
 
-func (pq PriorityQueue) Less(i, j int) bool {
+func (pq PriorityQueue[T]) Len() int { return len(pq) }
+
+func (pq PriorityQueue[T]) Less(i, j int) bool {
 	// We want Pop to give us the LOWEST priority so we use less than here.
 	return pq[i].priority < pq[j].priority
 }
 
-func (pq PriorityQueue) Swap(i, j int) {
+func (pq PriorityQueue[T]) Swap(i, j int) {
 	pq[i], pq[j] = pq[j], pq[i]
 	pq[i].index = i
 	pq[j].index = j
 }
 
-func (pq *PriorityQueue) Push(x interface{}) {
+func (pq *PriorityQueue[T]) Push(x interface{}) {
 	n := len(*pq)
-	item := x.(*Item)
+	item := x.(*Item[T])
 	item.index = n
 	*pq = append(*pq, item)
 }
 
-func (pq *PriorityQueue) Pop() interface{} {
+func (pq *PriorityQueue[T]) Pop() interface{} {
 	old := *pq
 	n := len(old)
 	item := old[n-1]
@@ -49,15 +57,20 @@ func (pq *PriorityQueue) Pop() interface{} {
 }
 
 // update modifies the priority and value of an Item in the queue.
-func (pq *PriorityQueue) update(cell *Cell) {
+func (pq *PriorityQueue[T]) Update(value *T, priority int) {
 	// find item
 	for _, item := range *pq {
-		if item.value == cell {
-			item.priority = cell.distance
+		if item.value == value {
+			item.priority = priority
 			heap.Fix(pq, item.index)
 
 			break
 		}
 		// else: uh oh
 	}
+}
+
+// TODO: this is a pain with generics
+func (pq *PriorityQueue[T]) Get() *T {
+	return heap.Pop(pq).(*Item[T]).value
 }
