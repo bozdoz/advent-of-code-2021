@@ -18,6 +18,7 @@ type Item[T any] struct {
 // A PriorityQueue implements heap.Interface and holds Items.
 type PriorityQueue[T any] []*Item[T]
 
+// sets index manually
 func (pq *PriorityQueue[T]) NewItem(value *T, priority, index int) {
 	(*pq)[index] = &Item[T]{
 		value,
@@ -26,11 +27,22 @@ func (pq *PriorityQueue[T]) NewItem(value *T, priority, index int) {
 	}
 }
 
+// sets index automatically
+func (pq *PriorityQueue[T]) PushNewItem(value *T, priority int) {
+	newItem := &Item[T]{
+		value,
+		priority,
+		0,
+	}
+
+	pq.Push(newItem)
+}
+
 func (pq PriorityQueue[T]) Len() int { return len(pq) }
 
 func (pq PriorityQueue[T]) Less(i, j int) bool {
 	// We want Pop to give us the LOWEST priority so we use less than here.
-	return pq[i].priority < pq[j].priority
+	return pq[i].priority > pq[j].priority
 }
 
 func (pq PriorityQueue[T]) Swap(i, j int) {
@@ -73,4 +85,8 @@ func (pq *PriorityQueue[T]) Update(value *T, priority int) {
 // TODO: this is a pain with generics
 func (pq *PriorityQueue[T]) Get() *T {
 	return heap.Pop(pq).(*Item[T]).value
+}
+
+func (pq *PriorityQueue[T]) Init() {
+	heap.Init(pq)
 }

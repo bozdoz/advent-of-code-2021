@@ -239,3 +239,10 @@ func BinaryToInt[T ~string](bin T) (int, error) {
 
 	return int(val), err
 }
+
+func AbsInt(num int) int {
+	if num < 0 {
+		return -num
+	}
+	return num
+}
