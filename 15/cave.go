@@ -1,7 +1,6 @@
 package main
 
 import (
-	"container/heap"
 	"fmt"
 	"strconv"
 	"strings"
@@ -122,7 +121,7 @@ func (cave *Cave) findAllPaths() {
 		}
 	}
 
-	heap.Init(&pq)
+	pq.Init()
 
 	for pq.Len() > 0 {
 		cell := pq.Get()
