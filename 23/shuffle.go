@@ -9,60 +9,100 @@ import (
 	"bozdoz.com/aoc-2021/utils"
 )
 
-type AmphipodType string
+const (
+	HALLWAY_SPOTS = 7
+)
 
-type Amphipod struct {
-	_type AmphipodType
-}
+type AmphipodType byte
 
 const (
-	AMBER  AmphipodType = "A"
-	BRONZE AmphipodType = "B"
-	COPPER AmphipodType = "C"
-	DESERT AmphipodType = "D"
+	A AmphipodType = 'A'
+	B AmphipodType = 'B'
+	C AmphipodType = 'C'
+	D AmphipodType = 'D'
 )
 
 var costs = map[AmphipodType]int{
-	AMBER:  1,
-	BRONZE: 10,
-	COPPER: 100,
-	DESERT: 1000,
+	A: 1,
+	B: 10,
+	C: 100,
+	D: 1000,
 }
 
-var rooms = map[AmphipodType]int{
-	AMBER:  0,
-	BRONZE: 1,
-	COPPER: 2,
-	DESERT: 3,
+var rooms = map[AmphipodType]int8{
+	A: 2,
+	B: 4,
+	C: 6,
+	D: 8,
 }
+
+type Amphipod struct {
+	x, y  int8
+	_type AmphipodType
+}
+
+type Grid [5][11]*Amphipod
 
 type Burrow struct {
-	hallway   [11]*Amphipod
-	siderooms [4][]*Amphipod
+	amphipods []*Amphipod
 	cost      int
+	grid      *Grid
+	states    []string
 }
 
 func parseInput(data string) *Burrow {
-	burrow := &Burrow{}
+	burrow := &Burrow{
+		amphipods: make([]*Amphipod, 0, 16),
+		grid:      &Grid{},
+	}
 
 	re := regexp.MustCompile("[ABCD]")
 
-	for i, match := range re.FindAllString(data, -1) {
-		_type := AmphipodType(match)
+	for i, match := range re.FindAllString(data, 16) {
+		_type := match[0]
 
-		pod := &Amphipod{_type}
+		room := (i%4)*2 + 2
+		position := (i / 4) + 1
 
-		room := i % 4
+		pod := &Amphipod{
+			x:     int8(room),
+			y:     int8(position),
+			_type: AmphipodType(_type),
+		}
 
-		burrow.siderooms[room] = append(burrow.siderooms[room], pod)
+		burrow.grid[pod.y][pod.x] = pod
+
+		burrow.amphipods = append(burrow.amphipods, pod)
 	}
 
 	return burrow
 }
 
-// room should have same type or be empty
-func sideRoomHasOtherTypes(sideroom []*Amphipod, _type AmphipodType) bool {
-	for _, pod := range sideroom {
+func ordered[T types.Numeric](i, j T) (T, T) {
+	if i < j {
+		return i, j
+	}
+
+	return j, i
+}
+
+func (burrow *Burrow) isHallwayClear(i, j int8) bool {
+	min, max := ordered(i, j)
+
+	for _, pod := range burrow.amphipods {
+		if pod.y == 0 && pod.x >= min && pod.x <= max {
+			return false
+		}
+	}
+
+	return true
+}
+
+func sideRoomHasOtherTypes(grid *Grid, _type AmphipodType) bool {
+	room := rooms[_type]
+
+	for i := 1; i < 5; i++ {
+		pod := grid[i][room]
 		if pod != nil && pod._type != _type {
 			return true
 		}
@@ -71,9 +111,21 @@ func sideRoomHasOtherTypes(sideroom []*Amphipod, _type AmphipodType) bool {
 	return false
 }
 
-func sideRoomIsComplete(sideroom []*Amphipod, _type AmphipodType) bool {
-	for _, pod := range sideroom {
-		if pod == nil || pod._type != _type {
+func sideRoomComplete(grid *Grid, _type AmphipodType) bool {
+	room := rooms[_type]
+	hasAnyPods := grid[1][room] != nil
+
+	if !hasAnyPods {
+		return false
+	}
+
+	for i := 1; i < 5; i++ {
+		pod := grid[i][room]
+		if pod == nil {
+			// ignore nil pods if we're only dealing with 8 pods total
+			break
+		}
+		if pod._type != _type {
 			return false
 		}
 	}
@@ -81,48 +133,16 @@ func sideRoomIsComplete(sideroom []*Amphipod, _type AmphipodType) bool {
 	return true
 }
 
-func getFirstPodInSideroom(sideroom []*Amphipod) *Amphipod {
-	for _, pod := range sideroom {
-		if pod != nil {
-			return pod
+func nextPodsAreSameType(grid *Grid, pod *Amphipod) bool {
+	room := rooms[pod._type]
+
+	for i := 1; i < 5; i++ {
+		ref := grid[i][room]
+		if ref == nil {
+			// ignore nil pods if we're only dealing with 8 pods total
+			break
 		}
-	}
-
-	return nil
-}
-
-func (burrow *Burrow) isHallwayClear(i, j int) bool {
-	min := utils.MinInt(i, j)
-	max := utils.MaxInt(i, j)
-	for _, pod := range burrow.hallway[min : max+1] {
-		if pod != nil {
-			return false
-		}
-	}
-
-	return true
-}
-
-func (burrow *Burrow) swapSideRoomtoHallway(room, pos, hallway int) {
-	burrow.hallway[hallway] = burrow.siderooms[room][pos]
-	burrow.siderooms[room][pos] = nil
-}
-
-func (burrow *Burrow) swapHallwaytoSideRoom(hallway, room, pos int) {
-	burrow.siderooms[room][pos] = burrow.hallway[hallway]
-	burrow.hallway[hallway] = nil
-}
-
-// pods nestled as deep as possible in sideroom
-// with no other types deeper are inactive
-func nextPodsAreSameType(sideroom []*Amphipod, pod *Amphipod) bool {
-	startChecking := false
-	for _, ref := range sideroom {
-		if ref == pod {
-			startChecking = true
-			continue
-		}
-		if startChecking && ref._type != pod._type {
+		if ref._type != pod._type {
 			return false
 		}
 	}
@@ -131,75 +151,89 @@ func nextPodsAreSameType(sideroom []*Amphipod, pod *Amphipod) bool {
 }
 
 // 1. which pods can move
-func (burrow *Burrow) getActivePods() (activePods []*Amphipod) {
+func (burrow *Burrow) getActivePods() []*Amphipod {
+	// TODO: how many could possibly be active
+	activePods := make([]*Amphipod, 0, 5)
+	grid := burrow.grid
+
 	// check hallway for pods that can go "home"
-	for i, pod := range burrow.hallway {
-		if pod != nil {
-			// check room is ready:
-			room := rooms[pod._type]
-			roomHasOtherTypes := sideRoomHasOtherTypes(
-				burrow.siderooms[room],
-				pod._type,
-			)
-
-			// check path is clear
-			toRoom := (room + 1) * 2
-			fromPod := i
-
-			// don't include index of pod
-			if toRoom < fromPod {
-				fromPod--
-			} else {
-				fromPod++
-			}
-			isHallwayClear := burrow.isHallwayClear(fromPod, toRoom)
-
-			canGoHome := !roomHasOtherTypes && isHallwayClear
-
-			if canGoHome {
-				activePods = append(activePods, pod)
-			}
-		}
-	}
-
-	// check siderooms for pods that can go into the hallway
-	for i, sideroom := range burrow.siderooms {
-		pod := getFirstPodInSideroom(sideroom)
-
+	for _, pod := range grid[0] {
 		if pod == nil {
 			continue
 		}
 
-		isHome := i == rooms[pod._type]
+		toRoom := rooms[pod._type]
 
-		if isHome && nextPodsAreSameType(sideroom, pod) {
-			// this pod is inactive
-			continue
+		// check room is ready:
+		roomHasOtherTypes := sideRoomHasOtherTypes(
+			grid,
+			pod._type,
+		)
+
+		// check path is clear
+		podX := pod.x
+
+		// don't include index of pod
+		if toRoom < podX {
+			podX--
+		} else {
+			podX++
 		}
+		isHallwayClear := burrow.isHallwayClear(podX, toRoom)
 
-		// hallway has some room (left or right)
-		hallwayAtRoom := (i + 1) * 2
-		isHallwayClear := burrow.isHallwayClear(hallwayAtRoom-1, hallwayAtRoom) || burrow.isHallwayClear(hallwayAtRoom, hallwayAtRoom+1)
+		canGoHome := !roomHasOtherTypes && isHallwayClear
 
-		if isHallwayClear {
+		if canGoHome {
 			activePods = append(activePods, pod)
 		}
 	}
 
-	return
+	// check siderooms for pods that can go into the hallway
+	var x, y int8
+	for x = 2; x < 10; x += 2 {
+		for y = 1; y < 5; y++ {
+			pod := grid[y][x]
+
+			if pod == nil {
+				// dig deeper
+				continue
+			}
+
+			isHome := x == rooms[pod._type]
+
+			if isHome && nextPodsAreSameType(grid, pod) {
+				// this pod/room is inactive
+				break
+			}
+
+			// hallway has some room (left or right)
+			isHallwayClear := burrow.isHallwayClear(x-1, x) || burrow.isHallwayClear(x, x+1)
+
+			if isHallwayClear {
+				activePods = append(activePods, pod)
+			}
+
+			// stop at first pod in room (subsequent pods are buried)
+			break
+		}
+	}
+
+	return activePods
 }
 
 func (burrow *Burrow) Copy() *Burrow {
-	copy := &Burrow{}
-
-	for i, pod := range burrow.hallway {
-		copy.hallway[i] = pod.Copy()
+	copy := &Burrow{
+		amphipods: make([]*Amphipod, 0, 16),
+		grid:      &Grid{},
+		states:    make([]string, 0, len(burrow.states)+1),
 	}
 
-	for i, room := range burrow.siderooms {
-		for _, pod := range room {
-			copy.siderooms[i] = append(copy.siderooms[i], pod.Copy())
-		}
+	copy.states = append(copy.states, burrow.states...)
+
+	for _, pod := range burrow.amphipods {
+		newPod := pod.Copy()
+		copy.amphipods = append(copy.amphipods, newPod)
+		copy.grid[pod.y][pod.x] = newPod
 	}
 
 	copy.cost = burrow.cost
@@ -211,68 +245,52 @@ func (pod *Amphipod) Copy() *Amphipod {
 	if pod == nil {
 		return nil
 	}
-	return &Amphipod{pod._type}
+
+	return &Amphipod{
+		x:     pod.x,
+		y:     pod.y,
+		_type: pod._type,
+	}
 }
 
-func (burrow *Burrow) travelToHallway(room, pos, hallwayPos int) {
-	pod := burrow.siderooms[room][pos]
-	hallwayEnd := (room + 1) * 2
-	travel := 1 + pos
+func (burrow *Burrow) movePodTo(pod *Amphipod, x, y int8) {
+	// update grid
+	burrow.grid[y][x] = pod
+	burrow.grid[pod.y][pod.x] = nil
 
-	travel += utils.AbsInt(hallwayPos - hallwayEnd)
-	burrow.swapSideRoomtoHallway(room, pos, hallwayPos)
+	dx := utils.AbsInt(pod.x - x)
+	dy := utils.AbsInt(pod.y - y)
+
+	// update pod
+	pod.x = x
+	pod.y = y
 
 	// update cost of travel
-	burrow.cost += travel * costs[pod._type]
+	burrow.cost += int(dx+dy) * costs[pod._type]
 }
 
-func (burrow *Burrow) travelToRoom(hallwayPos int) {
-	pod := burrow.hallway[hallwayPos]
+func (burrow *Burrow) getValidHallwayPositionsFromRoom(room int8) *[]int8 {
+	var start int8 = 0
+	var end int8 = 10
 
-	// pod can only go into its own room
-	room := rooms[pod._type]
-	sideroom := burrow.siderooms[room]
-	hallwayEnd := (room + 1) * 2
-	travel := utils.AbsInt(hallwayPos - hallwayEnd)
-
-	// find room position
-	roomLen := len(sideroom)
-	// iterate in reverse
-	for i := roomLen - 1; i >= 0; i-- {
-		position := sideroom[i]
-
-		if position == nil {
-			// first empty position is where the pod must go
-			travel += i + 1
-			burrow.swapHallwaytoSideRoom(hallwayPos, room, i)
+	//  reverse for start position
+	for i := room; i >= 0; i-- {
+		if burrow.grid[0][i] != nil {
+			// blocked
+			start = i + 1
 			break
 		}
 	}
 
-	// update cost of travel
-	burrow.cost += travel * costs[pod._type]
-}
-
-func (burrow *Burrow) getValidHallwayPositionsFromRoom(room int) (positions []int) {
-	start := 0
-	end := 10
-
-	hallwayPos := (room + 1) * 2
-
-	//  reverse for start position
-	for i := hallwayPos; i >= 0; i-- {
-		if burrow.hallway[i] != nil {
-			// blocked
-			start = i + 1
-		}
-	}
-
-	for i := hallwayPos; i < 11; i++ {
-		if burrow.hallway[i] != nil {
+	for i := room; i < 11; i++ {
+		if burrow.grid[0][i] != nil {
 			// blocked
 			end = i - 1
+			break
 		}
 	}
+
+	positions := make([]int8, 0, HALLWAY_SPOTS)
 
 	for i := start; i <= end; i++ {
 		// hallway room positions are invalid (2,4,6,8)
@@ -281,99 +299,119 @@ func (burrow *Burrow) getValidHallwayPositionsFromRoom(room int) (positions []in
 		}
 	}
 
-	return
+	return &positions
+}
+
+func (burrow *Burrow) sendPodToRoom(pod *Amphipod) {
+	var y int8
+	room := rooms[pod._type]
+	var depth int8 = 2
+	if len(burrow.amphipods) == 16 {
+		depth = 4
+	}
+
+	// go in reverse for pod-homing
+	for y = depth; y >= 1; y-- {
+		space := burrow.grid[y][room]
+
+		if space == nil {
+			burrow.movePodTo(pod, room, y)
+			return
+		}
+	}
 }
 
 // 2. where can each pod move
 func (burrow *Burrow) getNextStates() []*Burrow {
-	nextStates := []*Burrow{}
 	activePods := burrow.getActivePods()
+	// the worst that could happen is the initial state, where
+	// each pod could move out into the hallway (7 valid spots)
+	nextStates := make([]*Burrow, 0, 7*len(activePods))
 
-outer:
 	for _, pod := range activePods {
 		// if pod in hallway, pod moves to sideroom
-		for i, ref := range burrow.hallway {
-			if pod == ref {
-				// single new state
-				copy := burrow.Copy()
-				copy.travelToRoom(i)
+		if pod.y == 0 {
+			// single new state
+			copy := burrow.Copy()
+			newPod := copy.grid[pod.y][pod.x]
+			copy.sendPodToRoom(newPod)
 
-				nextStates = append(nextStates, copy)
+			nextStates = append(nextStates, copy)
 
-				continue outer
-			}
+			continue
 		}
 
-		// if pod in ANY sideroom, pod moves anywhere in hallway
-		for room, sideroom := range burrow.siderooms {
-			for pos, ref := range sideroom {
-				if ref == pod {
-					positions := burrow.getValidHallwayPositionsFromRoom(room)
+		// if pod in ANY(!!!) sideroom, pod moves anywhere in hallway
+		positions := burrow.getValidHallwayPositionsFromRoom(pod.x)
 
-					for _, hallway := range positions {
-						copy := burrow.Copy()
-						copy.travelToHallway(room, pos, hallway)
+		for _, hallwayX := range *positions {
+			copy := burrow.Copy()
+			newPod := copy.grid[pod.y][pod.x]
+			// y=0 is hallway
+			copy.movePodTo(newPod, hallwayX, 0)
 
-						nextStates = append(nextStates, copy)
-					}
-
-					break
-				}
-			}
+			nextStates = append(nextStates, copy)
 		}
 	}
 
 	return nextStates
 }
 
-var amphipodRooms = []AmphipodType{
-	AMBER, BRONZE, COPPER, DESERT,
-}
-
 func (burrow *Burrow) isComplete() bool {
-	for i, sideroom := range burrow.siderooms {
-		_type := amphipodRooms[i]
-		if !sideRoomIsComplete(sideroom, _type) {
-			return false
-		}
-	}
-	return true
+	grid := burrow.grid
+
+	return sideRoomComplete(grid, A) &&
+		sideRoomComplete(grid, B) &&
+		sideRoomComplete(grid, C) &&
+		sideRoomComplete(grid, D)
 }
 
 var cacheHits int
 var iterations int
 var cachedStates = map[string]int{}
 
+func (this *Burrow) saveState() {
+	this.states = append(this.states, this.String())
+}
+
 func (this *Burrow) play() int {
 	pq := types.PriorityQueue[Burrow]{}
 	pq.PushNewItem(this, 0)
 	min := math.MaxInt
+	bestMoves := this
 
 	for pq.Len() > 0 {
 		burrow := pq.Get()
 		iterations++
 
+		burrow.saveState()
+
 		if iterations%100000 == 0 {
-			fmt.Println("iterations", iterations, cacheHits)
+			log.Println("iterations", iterations, cacheHits)
 		}
 
 		// log.Println("burrow", burrow)
 
 		nextStates := burrow.getNextStates()
 
-		// log.Println("next", nextStates)
 		if len(nextStates) == 0 {
 			// complete? failed?
 			if burrow.isComplete() && burrow.cost < min {
 				min = burrow.cost
-				fmt.Println("min so far", min, iterations, cacheHits)
+				bestMoves = burrow
+				log.Println("min so far", min, iterations, cacheHits)
 			}
 
 			continue
 		}
 
+		// log.Println("next", nextStates)
+
 		// 3. push state to priority queue with cost
 		for _, state := range nextStates {
+			if state.cost > min {
+				continue
+			}
 			key := state.hash()
 			cachedCost, ok := cachedStates[key]
 			if !ok || cachedCost > state.cost {
@@ -389,8 +427,9 @@ func (this *Burrow) play() int {
 		}
 	}
 
-	log.Println("iterations", iterations)
-	log.Println("cache hits", cacheHits)
+	fmt.Println("iterations", iterations)
+	fmt.Println("cache hits", cacheHits)
+	log.Println("best moves", bestMoves.states)
 
 	return min
 }
@@ -399,31 +438,49 @@ func (this *Burrow) play() int {
 // string representations
 //
 
-func (burrow *Burrow) hash() (output string) {
-	for _, pod := range burrow.hallway {
-		output += pod.String()
+// TODO: is this optimized? or insane?
+func (burrow *Burrow) hash() string {
+	grid := burrow.grid
+	toString := make([]byte, 11+4*4)
+
+	for i, pod := range grid[0] {
+		toString[i] = pod.String()[0]
 	}
 
-	for _, sideroom := range burrow.siderooms {
-		for _, pod := range sideroom {
-			output += pod.String()
+	i := 11
+
+	for _, row := range grid[1:] {
+		for j, pod := range row[2:9] {
+			if j%2 == 0 {
+				toString[i] = pod.String()[0]
+				i++
+			}
 		}
 	}
 
-	return
+	return string(toString)
 }
 
 func (burrow *Burrow) String() (output string) {
 	output += "\ncost: " + fmt.Sprint(burrow.cost)
 	output += "\n"
-	for _, pod := range burrow.hallway {
+	grid := burrow.grid
+	for _, pod := range grid[0] {
 		output += pod.String()
 	}
 
-	for j := range burrow.siderooms[0] {
+	count := len(burrow.amphipods)
+	max := 3
+	if count == 16 {
+		max = 5
+	}
+
+	for _, row := range grid[1:max] {
 		output += fmt.Sprintf("\n  ")
-		for _, sideroom := range burrow.siderooms {
-			output += fmt.Sprintf("%v ", sideroom[j])
+		for i, pod := range row[2:9] {
+			if i%2 == 0 {
+				output += pod.String() + " "
+			}
 		}
 	}
 

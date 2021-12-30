@@ -19,12 +19,13 @@ func init() {
 }
 
 func TestHallwayClear(t *testing.T) {
-	input := "BCBDADCA"
+	input := `BCBD
+					  ADCA`
 	burrow := parseInput(input)
 
 	// move from sideroom to hallway
-	burrow.hallway[3] = burrow.siderooms[2][0]
-	burrow.siderooms[2][0] = nil
+	grid := burrow.grid
+	burrow.movePodTo(grid[1][2], 3, 0)
 
 	if !burrow.isHallwayClear(0, 2) {
 		t.Log("expected hallway clear, didn't get it")
@@ -46,8 +47,6 @@ func TestHallwayClear(t *testing.T) {
 		t.Fail()
 	}
 
-	log.Println(burrow)
-
 	if burrow.isHallwayClear(0, 3) {
 		t.Log("expected hallway blocked 0 - 3, didn't get it")
 		t.Fail()
@@ -57,84 +56,24 @@ func TestHallwayClear(t *testing.T) {
 		t.Log("expected hallway blocked 3 - 10, didn't get it")
 		t.Fail()
 	}
-}
 
-func TestSideRoomOtherTypes(t *testing.T) {
-	sideroom := []*Amphipod{}
+	burrow = parseInput(input)
 
-	if sideRoomHasOtherTypes(sideroom, AMBER) {
-		t.Log("expected no other types, didn't get it")
-		t.Fail()
-	}
+	grid = burrow.grid
+	// move D
+	burrow.movePodTo(grid[1][8], 9, 0)
+	// move A
+	burrow.movePodTo(grid[2][8], 5, 0)
 
-	sideroom = []*Amphipod{
-		{_type: AMBER},
-	}
+	log.Println(burrow)
 
-	if sideRoomHasOtherTypes(sideroom, AMBER) {
-		t.Log("expected no other types, didn't get it")
-		t.Fail()
-	}
-
-	sideroom = []*Amphipod{
-		{_type: AMBER},
-		{_type: BRONZE},
-	}
-
-	if !sideRoomHasOtherTypes(sideroom, AMBER) {
-		t.Log("expected other types, didn't get it")
-		t.Fail()
-	}
-
-	sideroom = []*Amphipod{
-		{_type: BRONZE},
-		{_type: BRONZE},
-	}
-
-	if !sideRoomHasOtherTypes(sideroom, AMBER) {
-		t.Log("expected other types, didn't get it")
-		t.Fail()
-	}
-}
-
-func TestFirstInSideRoom(t *testing.T) {
-	sideroom := []*Amphipod{}
-
-	first := getFirstPodInSideroom(sideroom)
-
-	if first != nil {
-		t.Log("expected nil in sideroom, didn't get it")
-		t.Fail()
-	}
-
-	sideroom = []*Amphipod{
-		nil,
-		{_type: BRONZE},
-	}
-
-	first = getFirstPodInSideroom(sideroom)
-
-	if first == nil || first._type != BRONZE {
-		t.Log("expected bronze pod")
-		t.Fail()
-	}
-
-	sideroom = []*Amphipod{
-		{_type: BRONZE},
-		{_type: AMBER},
-	}
-
-	first = getFirstPodInSideroom(sideroom)
-
-	if first == nil || first._type != BRONZE {
-		t.Log("expected bronze pod")
-		t.Fail()
-	}
+	burrow.getNextStates()
 }
 
 func TestActivePods(t *testing.T) {
 	// easy move AA and BB
-	input := "BCCABDDA"
+	input := `BCCA
+					  BDDA`
 	burrow := parseInput(input)
 
 	activePods := burrow.getActivePods()
@@ -145,11 +84,13 @@ func TestActivePods(t *testing.T) {
 		t.FailNow()
 	}
 
+	grid := burrow.grid
 	// move from sideroom to hallway
-	burrow.swapSideRoomtoHallway(0, 0, 0)
-	burrow.swapSideRoomtoHallway(0, 1, 1)
+	burrow.movePodTo(grid[1][2], 0, 0)
+	burrow.movePodTo(grid[2][2], 1, 0)
+
 	// move A's
-	burrow.swapSideRoomtoHallway(3, 0, 3)
+	burrow.movePodTo(grid[1][8], 3, 0)
 
 	log.Println(burrow)
 
@@ -161,7 +102,7 @@ func TestActivePods(t *testing.T) {
 		t.FailNow()
 	}
 
-	burrow.swapSideRoomtoHallway(3, 1, 5)
+	burrow.movePodTo(grid[2][8], 5, 0)
 
 	log.Println(burrow)
 
@@ -179,23 +120,34 @@ func TestBurrowCopy(t *testing.T) {
 
 	copy := burrow.Copy()
 
-	if copy.siderooms[0][0] == burrow.siderooms[0][0] {
-		t.Log("expected siderooms to have new copies")
+	if copy.amphipods[0] == burrow.amphipods[0] {
+		t.Log("expected amphipods have new copies")
+		t.Fail()
+	}
+	if copy.amphipods[0].x != burrow.amphipods[0].x {
+		t.Log("expected amphipods don't have same values", copy.amphipods[0], burrow.amphipods[0])
+		t.Fail()
+	}
+
+	if copy.grid == burrow.grid {
+		t.Logf("expected grid to be copied by value")
+		t.Fail()
+	}
+
+	if copy.grid[1][2] == burrow.grid[1][2] {
+		t.Logf("expected grid pods to be copied by value")
+		t.Fail()
+	}
+
+	if copy.grid[1][2]._type != burrow.grid[1][2]._type {
+		t.Logf("expected grid pods to have same value")
 		t.Fail()
 	}
 
 	twice := copy.Copy()
 
-	if copy.siderooms[0][0] == twice.siderooms[0][0] {
-		t.Log("expected siderooms to have new copies twice")
-		t.Fail()
-	}
-
-	copy.swapSideRoomtoHallway(0, 0, 0)
-	third := copy.Copy()
-
-	if copy.siderooms[0][0] != third.siderooms[0][0] {
-		t.Log("expected nil to be equal to nil")
+	if copy.amphipods[0] == twice.amphipods[0] {
+		t.Log("expected amphipods have new copies twice")
 		t.Fail()
 	}
 
@@ -209,16 +161,17 @@ func TestBurrowCopy(t *testing.T) {
 }
 
 func TestValidHallway(t *testing.T) {
-	input := "BCCABDDA"
+	input := `BCCA
+					  BDDA`
 	burrow := parseInput(input)
 
-	positions := burrow.getValidHallwayPositionsFromRoom(0)
+	positions := burrow.getValidHallwayPositionsFromRoom(2)
 
 	// 4 positions are always invalid
 	expected := 11 - 4
 
-	if len(positions) != expected {
-		t.Logf("expected %v, got %v", expected, len(positions))
+	if len(*positions) != expected {
+		t.Logf("expected %v, got %v", expected, len(*positions))
 		t.Fail()
 	}
 }
@@ -236,7 +189,10 @@ func TestLastMove(t *testing.T) {
 		t.Fail()
 	}
 
-	burrow.swapSideRoomtoHallway(0, 0, 0)
+	grid := burrow.grid
+	burrow.movePodTo(grid[1][2], 0, 0)
+	log.Println(burrow)
+
 	activePods = burrow.getActivePods()
 	expected = 1
 

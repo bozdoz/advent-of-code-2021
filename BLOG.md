@@ -1,5 +1,91 @@
 # What Am I Learning Each Day?
 
+### Day 23
+
+Day 23 turned into at least 3 days. Most of my implementations took a long time to write.  I had to refactor at least twice.  My logic had bugs in a few places which were hard to find.
+
+So I read that I had to combine dijkstra's with the state copying solution from the dice game.
+
+I finally got part one, but it takes **1m17s** to run.  Part Two promises to be much harder.
+
+Somehow I've used pointers so often now that I can't even remember how these structs work without pointers.  I will need to write some new tests to figure out how to copy values over to new structs without pointers (if that's even a good idea).  
+
+So part of what I've almost learned is how to be better with memory management.  Who knows if that's true though.
+
+##### Slice Capacities
+
+Using `append` to add to a slice will **double** its capacity if it overflows: 
+
+```go
+a := []int{}
+fmt.Println(cap(a), a)
+for i := 0; i < 5; i++ {
+	a = append(a, i)
+	fmt.Println(cap(a), a)
+}
+```
+
+Prints:
+
+```
+0 []
+1 [0]
+2 [0 1]
+4 [0 1 2]
+4 [0 1 2 3]
+8 [0 1 2 3 4]
+```
+
+It also uses a different memory address.  So it's bad memory management, to not consider how large an array might get.
+
+So instead of saving Amphipods as `[]*Amphipod{}`, I used `make` to set the capacity:
+
+```go
+burrow := &Burrow{
+	amphipods: make([]*Amphipod, 0, 16),
+}
+```
+
+Also for `getActivePods` I figured that there could only be 5 pods active at a given time. Changed this:
+
+```go
+func (burrow *Burrow) getActivePods() (activePods []*Amphipod) {
+```
+
+To this:
+
+```go
+func (burrow *Burrow) getActivePods() []*Amphipod {
+	activePods := make([]*Amphipod, 0, 5)
+```
+
+##### Passing slices
+
+Passing slices to functions by references prevents copying the values over to new memory addresses:
+
+```go
+func nextPodsAreSameType(sideroom []*Amphipod, pod *Amphipod) bool {
+```
+
+That should have been:
+
+```go
+func nextPodsAreSameType(sideroom *[]*Amphipod, pod *Amphipod) bool {
+```
+
+##### Datatypes
+
+I tried switching from using `int` to using `int8` since I knew the coordinates wouldn't be greater than 255.  I tried `uint8` first but didn't think about what would happen in a reversed for loop:
+
+```go
+var room uint8
+
+for i := room; i >= 0; i-- {
+	// i goes from 0 to 255 :(
+}
+```
+
+
 ### Day 22
 
 First [Fuzz test](https://go.dev/doc/fuzz/):

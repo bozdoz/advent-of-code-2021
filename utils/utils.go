@@ -12,6 +12,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"bozdoz.com/aoc-2021/types"
 )
 
 func LoadAsLines(filename string) (lines []string) {
@@ -240,7 +242,7 @@ func BinaryToInt[T ~string](bin T) (int, error) {
 	return int(val), err
 }
 
-func AbsInt(num int) int {
+func AbsInt[T types.Numeric](num T) T {
 	if num < 0 {
 		return -num
 	}
