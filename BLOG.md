@@ -34,6 +34,32 @@ That brought runtime down from 40s to **530ms**!  Brought iterations down from *
 
 I'm finally feeling *better* about this.
 
+**Update #2**
+
+Part two was failing due to a single bad line:
+
+```go
+func nextPodsAreSameType(grid *Grid, pod *Amphipod) bool {
+	room := rooms[pod._type]
+
+	for i := 1; i < 5; i++ {
+		ref := grid[i][room]
+		if ref == nil {
+			// ignore nil pods if we're only dealing with 8 pods total
+			break
+		}
+```
+
+Since I switched to using x,y coordinates, I should have seen that I could improve/entirely fix this for loop to actually check for pods below(!) the given pod:
+
+```go
+for i := pod.y + 1; i < 5; i++ {
+```
+
+Final thoughts are that this took a lot of debugging, and somewhat imaginative unit tests.  I felt like I was shooting in the dark for awhile, but I was able to debug test logs by logging states and outputting to .txt files.
+
+One thing I did was add a `saveState` function which pushed the current state to a stack, and copied that to each copy, so that for a final state I could look back and verify the moves and costs.  I had to do this because initially my tests were getting lower scores than the given solution.  Part of the problem I believe was that I separated `getActivePods` from `getNextStates`, which probably could/should have been combined, to reduce both errors and time.  Also I never explicitly tested `getNextStates` because it seemed too daunting, but it probably bit me a few times.
+
 #### Day 23 Memory Optimizing
 
 So part of what I've almost learned is how to be better with memory management.  Who knows if that's true though.

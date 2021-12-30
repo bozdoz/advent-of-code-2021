@@ -79,6 +79,32 @@ func parseInput(data string) *Burrow {
 	return burrow
 }
 
+// for debugging
+func burrowFromString(str string) *Burrow {
+	burrow := &Burrow{
+		grid: &Grid{},
+	}
+
+	lines := strings.Split(str, "\n")
+
+	for y, line := range lines {
+		for x, char := range line {
+			if char == ' ' || char == '.' {
+				continue
+			}
+			pod := &Amphipod{
+				x:     int8(x),
+				y:     int8(y),
+				_type: AmphipodType(char),
+			}
+			burrow.grid[y][x] = pod
+			burrow.amphipods = append(burrow.amphipods, pod)
+		}
+	}
+
+	return burrow
+}
+
 func ordered[T types.Numeric](i, j T) (T, T) {
 	if i < j {
 		return i, j
@@ -137,7 +163,7 @@ func sideRoomComplete(grid *Grid, _type AmphipodType) bool {
 func nextPodsAreSameType(grid *Grid, pod *Amphipod) bool {
 	room := rooms[pod._type]
 
-	for i := 1; i < 5; i++ {
+	for i := pod.y + 1; i < 5; i++ {
 		ref := grid[i][room]
 		if ref == nil {
 			// ignore nil pods if we're only dealing with 8 pods total
@@ -388,9 +414,9 @@ func (this *Burrow) play() int {
 		// enabling this changes runtime from 40s to 1m17s
 		// burrow.saveState()
 
-		if iterations%100000 == 0 {
-			log.Println("iterations", iterations, cacheHits)
-		}
+		// if iterations%100000 == 0 {
+		// 	log.Println("iterations", iterations, cacheHits)
+		// }
 
 		// log.Println("burrow", burrow)
 
@@ -401,7 +427,7 @@ func (this *Burrow) play() int {
 			if burrow.isComplete() && burrow.cost < min {
 				min = burrow.cost
 				// bestMoves = burrow
-				log.Println("min so far", min, iterations, cacheHits)
+				// log.Println("min so far", min, iterations, cacheHits)
 			}
 
 			continue

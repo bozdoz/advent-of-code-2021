@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"strings"
 	"time"
 
 	"bozdoz.com/aoc-2021/utils"
@@ -29,7 +30,25 @@ func PartOne(content string) (output int, err error) {
 }
 
 func PartTwo(content string) (output int, err error) {
-	return
+	// reset counters
+	iterations = 0
+	cacheHits = 0
+
+	folded := strings.Split(content, "\n")
+	// insert new lines for Part Two!
+	newContent := strings.Join([]string{
+		folded[2],
+		"#D#C#B#A#",
+		"#D#B#A#C#",
+		folded[3],
+	}, "")
+	burrow := parseInput(newContent)
+
+	log.Println(burrow)
+
+	min := burrow.play()
+
+	return min, nil
 }
 
 func main() {

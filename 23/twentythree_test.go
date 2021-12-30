@@ -8,7 +8,7 @@ import (
 // fill in the answers for each part (as they come)
 var answers = map[int]int{
 	1: 12521,
-	2: 0,
+	2: 44169,
 }
 
 var vals = FileLoader("example.txt")
@@ -110,6 +110,20 @@ func TestActivePods(t *testing.T) {
 
 	if len(activePods) != 2 {
 		t.Log("3. should still only have 2 active pods, got", len(activePods))
+		t.Fail()
+	}
+
+	// 16 pods
+	burrow = burrowFromString(`AA.....B.BD
+  B . . . 
+  D . C . 
+  D B C C 
+  A D C A`)
+
+	activePods = burrow.getActivePods()
+
+	if len(activePods) != 2 {
+		t.Log("4. 16 pods should have 2 active pods, got", len(activePods))
 		t.Fail()
 	}
 }
