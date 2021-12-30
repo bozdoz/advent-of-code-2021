@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"regexp"
+	"strings"
 
 	"bozdoz.com/aoc-2021/types"
 	"bozdoz.com/aoc-2021/utils"
@@ -322,7 +323,7 @@ func (burrow *Burrow) sendPodToRoom(pod *Amphipod) {
 }
 
 // 2. where can each pod move
-func (burrow *Burrow) getNextStates() []*Burrow {
+func (burrow *Burrow) getNextStates() *[]*Burrow {
 	activePods := burrow.getActivePods()
 	// the worst that could happen is the initial state, where
 	// each pod could move out into the hallway (7 valid spots)
@@ -354,7 +355,7 @@ func (burrow *Burrow) getNextStates() []*Burrow {
 		}
 	}
 
-	return nextStates
+	return &nextStates
 }
 
 func (burrow *Burrow) isComplete() bool {
@@ -378,13 +379,14 @@ func (this *Burrow) play() int {
 	pq := types.PriorityQueue[Burrow]{}
 	pq.PushNewItem(this, 0)
 	min := math.MaxInt
-	bestMoves := this
+	// bestMoves := this
 
 	for pq.Len() > 0 {
 		burrow := pq.Get()
 		iterations++
 
-		burrow.saveState()
+		// enabling this changes runtime from 40s to 1m17s
+		// burrow.saveState()
 
 		if iterations%100000 == 0 {
 			log.Println("iterations", iterations, cacheHits)
@@ -394,11 +396,11 @@ func (this *Burrow) play() int {
 
 		nextStates := burrow.getNextStates()
 
-		if len(nextStates) == 0 {
+		if len(*nextStates) == 0 {
 			// complete? failed?
 			if burrow.isComplete() && burrow.cost < min {
 				min = burrow.cost
-				bestMoves = burrow
+				// bestMoves = burrow
 				log.Println("min so far", min, iterations, cacheHits)
 			}
 
@@ -408,7 +410,7 @@ func (this *Burrow) play() int {
 		// log.Println("next", nextStates)
 
 		// 3. push state to priority queue with cost
-		for _, state := range nextStates {
+		for _, state := range *nextStates {
 			if state.cost > min {
 				continue
 			}
@@ -417,8 +419,8 @@ func (this *Burrow) play() int {
 			if !ok || cachedCost > state.cost {
 				// update cost of state
 				cachedStates[key] = state.cost
-			} else if ok && cachedCost < state.cost {
-				// there's a cheaper sequence for this state
+			} else if cachedCost <= state.cost {
+				// there's a cheaper (OR EQUAL) sequence for this state
 				cacheHits++
 				continue
 			}
@@ -429,7 +431,7 @@ func (this *Burrow) play() int {
 
 	fmt.Println("iterations", iterations)
 	fmt.Println("cache hits", cacheHits)
-	log.Println("best moves", bestMoves.states)
+	// log.Println("best moves", bestMoves.states)
 
 	return min
 }
@@ -461,12 +463,14 @@ func (burrow *Burrow) hash() string {
 	return string(toString)
 }
 
-func (burrow *Burrow) String() (output string) {
-	output += "\ncost: " + fmt.Sprint(burrow.cost)
-	output += "\n"
+func (burrow *Burrow) String() string {
+	var out strings.Builder
 	grid := burrow.grid
+
+	fmt.Fprintf(&out, "\ncost: %d\n", burrow.cost)
+
 	for _, pod := range grid[0] {
-		output += pod.String()
+		out.WriteString(pod.String())
 	}
 
 	count := len(burrow.amphipods)
@@ -476,15 +480,15 @@ func (burrow *Burrow) String() (output string) {
 	}
 
 	for _, row := range grid[1:max] {
-		output += fmt.Sprintf("\n  ")
+		out.WriteString("\n  ")
 		for i, pod := range row[2:9] {
 			if i%2 == 0 {
-				output += pod.String() + " "
+				fmt.Fprintf(&out, "%s ", pod.String())
 			}
 		}
 	}
 
-	return
+	return out.String()
 }
 
 func (pod *Amphipod) String() (output string) {
