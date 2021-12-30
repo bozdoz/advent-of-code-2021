@@ -42,7 +42,7 @@ func (pq PriorityQueue[T]) Len() int { return len(pq) }
 
 func (pq PriorityQueue[T]) Less(i, j int) bool {
 	// We want Pop to give us the LOWEST priority so we use less than here.
-	return pq[i].priority > pq[j].priority
+	return pq[i].priority < pq[j].priority
 }
 
 func (pq PriorityQueue[T]) Swap(i, j int) {
