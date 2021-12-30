@@ -10,6 +10,32 @@ I finally got part one, but it takes **1m17s** to run.  Part Two promises to be 
 
 Somehow I've used pointers so often now that I can't even remember how these structs work without pointers.  I will need to write some new tests to figure out how to copy values over to new structs without pointers (if that's even a good idea).  
 
+Part of my pointer problems are summed up here:
+
+```go
+for _, pod := range activePods {
+	// ...
+	for _, hallwayX := range *positions {
+		copy := burrow.Copy()
+		newPod := copy.grid[pod.y][pod.x]
+		// ...
+	}
+```
+
+I couldn't continue using `pod` because it wasn't the correct pod in the **copy**!
+
+**UPDATE**
+
+So I was debugging by saving each string rep state to each `burrow`; removing that state saving changed runtime from 1m17s to **40s**!
+
+I noticed I was checking `if cachedCost < state.cost` and ignoring that state if `true`.  But really I needed to discard equal costs also, because there's no point in tracking completely duplicate states.
+
+That brought runtime down from 40s to **530ms**!  Brought iterations down from **16.6M** to **129K**!
+
+I'm finally feeling *better* about this.
+
+#### Day 23 Memory Optimizing
+
 So part of what I've almost learned is how to be better with memory management.  Who knows if that's true though.
 
 ##### Slice Capacities
@@ -73,6 +99,8 @@ That should have been:
 func nextPodsAreSameType(sideroom *[]*Amphipod, pod *Amphipod) bool {
 ```
 
+Tried changing `getNextStates()` from returning `[]*Burrow` to returning `*[]*Burrow`, but it made no impact on runtime...
+
 ##### Datatypes
 
 I tried switching from using `int` to using `int8` since I knew the coordinates wouldn't be greater than 255.  I tried `uint8` first but didn't think about what would happen in a reversed for loop:
@@ -84,6 +112,29 @@ for i := room; i >= 0; i-- {
 	// i goes from 0 to 255 :(
 }
 ```
+
+##### strings.Builder
+
+I tried swapping `output += ""` to use `strings.Builder`:
+
+```go
+func (burrow *Burrow) String() string {
+	var out strings.Builder
+	grid := burrow.grid
+
+	fmt.Fprintf(&out, "\ncost: %d\n", burrow.cost)
+
+	for _, pod := range grid[0] {
+		out.WriteString(pod.String())
+	}
+
+	// ...
+
+	return out.String()
+}
+```
+
+But this did not appear to alter runtime **at all**.
 
 
 ### Day 22
