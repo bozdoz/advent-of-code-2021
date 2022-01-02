@@ -22,6 +22,10 @@ func init() {
 }
 
 func PartOne(content string) (output int, err error) {
+	// reset counters
+	iterations = 0
+	cacheHits = 0
+
 	burrow := parseInput(content)
 
 	min := burrow.play()

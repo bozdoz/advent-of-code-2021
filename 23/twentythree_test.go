@@ -11,8 +11,6 @@ var answers = map[int]int{
 	2: 44169,
 }
 
-var vals = FileLoader("example.txt")
-
 // show log output for tests only
 func init() {
 	log.SetOutput(os.Stdout)
@@ -251,16 +249,16 @@ func TestExampleOne(t *testing.T) {
 		return
 	}
 
-	val, err := PartOne(vals)
+	val, err := PartOne(FileLoader("example.txt"))
 
 	if err != nil {
 		t.Log("error should be nil", err)
-		t.Fail()
+		t.FailNow()
 	}
 
 	if val != expected {
 		t.Logf("Answer should be %v, but got %v", expected, val)
-		t.Fail()
+		t.FailNow()
 	}
 }
 
@@ -271,7 +269,7 @@ func TestExampleTwo(t *testing.T) {
 		return
 	}
 
-	val, err := PartTwo(vals)
+	val, err := PartTwo(FileLoader("example.txt"))
 
 	if err != nil {
 		t.Log("error should be nil", err)
