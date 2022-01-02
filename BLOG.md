@@ -1,5 +1,181 @@
 # What Am I Learning Each Day?
 
+### Day 24
+
+Fun!  Until it wasn't.  Then fun turned into laziness.
+
+I'm not sure how incorrect this all is, but I successfully built this generic program using a struct and an interface:
+
+```go
+type Instruction interface {
+	Exec(a *int, b int)
+	String() string
+}
+
+type Command struct {
+	left, right string
+}
+
+type Inp struct {
+	Command
+}
+
+func (inp *Inp) Exec(a *int, b int) {
+	*a = b
+}
+
+type Add struct {
+	Command
+}
+
+func (add *Add) Exec(a *int, b int) {
+	*a += b
+}
+
+// ...
+
+type Program struct {
+	w, x, y, z   int
+	instructions []Instruction
+	states       [][4]int
+	blocks       *[14][]Instruction
+}
+```
+
+So, this all **works**!  Though it's crazy slow.  Maybe because of all the logic to make it work:
+
+Parsing the input:
+```go
+re := regexp.MustCompile(`^(\w{3})\s(\w)\s?(-?\w*?)$`)
+
+for i, line := range data {
+	parts := re.FindStringSubmatch(line)
+
+	cmd, a, b := parts[1], parts[2], parts[3]
+
+	switch cmd {
+	case "inp":
+		program.instructions[i] = &Inp{Command{
+			left:  a,
+			right: b,
+		}}
+	// ...
+```
+
+Iterating the commands:
+```go
+func (program *Program) doCommand(cmd Instruction, input int) {
+	var a *int
+	var b int
+	vars := map[string]*int{
+		"w": &program.w,
+		"x": &program.x,
+		"y": &program.y,
+		"z": &program.z,
+	}
+
+	exec := func(v Command) {
+		var err error
+
+		a = vars[v.left]
+
+		switch {
+		case strings.ContainsAny(v.right, "wxyz"):
+			b = *vars[v.right]
+		default:
+			b, err = strconv.Atoi(v.right)
+			if err != nil {
+				panic(fmt.Sprint("can't parse v.right", v.right))
+			}
+		}
+
+		cmd.Exec(a, b)
+	}
+
+	// TODO: a little painful
+	switch v := cmd.(type) {
+	case *Inp:
+		a := vars[v.left]
+		cmd.Exec(a, input)
+	case *Add:
+		// this is why Command is nested in the struct
+		exec(v.Command)
+	// ...
+}
+```
+
+So yeah, the implementation felt a little awkward.  I kept having to switch between using `Command` or `Instruction` or using a Type Switch to get at the actual struct.
+
+I also couldn't do `type Add Command`; instead I needed to do `type Add struct { Command }`.  Preferring composition over inheritance I guess.
+
+I didn't actually need the `String` representations at all.  Just initially to prove to myself that it would work.
+
+So I ran this for maybe 30min at a time, and realized it may take a long long long time.  And I was ready to accept that and let it run on a server.  Until I thought: 
+
+> How could I optimize this?
+
+well initially I was checking every 14-digit number from 9's to 1's, converting each 14-digit int to `[14]int{}` so I could iterate them.
+
+```go
+func (program *Program) input(ints ...int) {
+```
+
+And that worked great for testing that the program worked:
+
+```go
+func TestBasic1(t *testing.T) {
+	example := []string{
+		"inp x",
+		"mul x -1",
+	}
+	monad := parseInput(example)
+
+	monad.input(4)
+
+	got := monad.x
+	want := -4
+
+	if got != want {
+		t.Errorf("got %v, wanted %v", got, want)
+	}
+}
+```
+
+But it couldn't ideally iterate 9^14 numbers (I tried).
+
+So I thought, I could cache it, or I could try adding some concurrency.  I also read up some solutions; I read that today's puzzle was more of a "read the puzzle input and figure out what it's doing", but I didn't really want to do that.  But I ended up meeting it half-way.
+
+I got the program to bruteforce all 9^14 numbers in ~12m.
+
+What I did was throw out all of the work I did previously, and just convert the (252 line) text input into a (18 line) native go program:
+
+```go
+func block(w, z, zdiv, xdiff, ydiff int) int {
+	var x, y int
+	x = z
+	x %= 26
+	z /= zdiv
+	x += xdiff
+	if x == w {
+		x = 0
+	} else {
+		x = 1
+	}
+	y = 25*x + 1 // 26 or 1
+	z *= y
+	y = w + ydiff
+	y *= x
+	z += y
+
+	return z
+}
+```
+
+This ran **126x faster**.
+
+So I didn't narrow down all the viable inputs; I just narrowed down that I only needed to store (and cache!) `z` values. `x`, and `y` values were never reused. And `w` was just taking the input at each step.  This helped reduce the logic of the program drastically, and I was able to solve part one in 8 seconds; part two in about 2 minutes.
+
+
 ### Day 23
 
 Day 23 turned into at least 3 days. Most of my implementations took a long time to write.  I had to refactor at least twice.  My logic had bugs in a few places which were hard to find.

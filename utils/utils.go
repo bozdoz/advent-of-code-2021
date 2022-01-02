@@ -190,6 +190,10 @@ func (log *ExtendedLogger) SetOutput(w io.Writer) {
 	log.Logger.SetOutput(w)
 }
 
+func (log *ExtendedLogger) Printf(format string, v ...interface{}) {
+	log.Logger.Output(2, "\n"+fmt.Sprintf(format, v...))
+}
+
 // custom logger, purely to add a new line in Println
 func Logger(args ...interface{}) *ExtendedLogger {
 	// default empty prefix

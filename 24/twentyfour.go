@@ -1,8 +1,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
+	"time"
 
 	"bozdoz.com/aoc-2021/utils"
 )
@@ -18,13 +20,20 @@ func init() {
 	log.SetOutput(ioutil.Discard)
 }
 
-func PartOne(content []string) (output int, err error) {
-	parseInput(content)
-	return
+func PartOne(content []string) (output interface{}, err error) {
+	program := parseInput(content)
+
+	num := program.solveLargest()
+
+	return num, nil
 }
 
-func PartTwo(content []string) (output int, err error) {
-	return
+func PartTwo(content []string) (output interface{}, err error) {
+	program := parseInput(content)
+
+	num := program.solveSmallest()
+
+	return num, nil
 }
 
 func main() {
@@ -33,21 +42,33 @@ func main() {
 
 	data := FileLoader(filename)
 
-	answer, err := PartOne(data)
+	partFlag := flag.Int("part", -1, "pass a flag for -part")
 
-	if err != nil {
-		fmt.Println("failed to parse PartOne", err)
-		return
+	flag.Parse()
+
+	if *partFlag < 2 {
+		start := time.Now()
+		answer, err := PartOne(data)
+
+		if err != nil {
+			fmt.Println("failed to parse PartOne", err)
+			return
+		}
+
+		fmt.Printf("Part One: %d \n", answer)
+		fmt.Printf("Time: %s \n", time.Since(start))
 	}
 
-	fmt.Printf("Part One: %d \n", answer)
+	if *partFlag != 1 {
+		start := time.Now()
+		answer2, err := PartTwo(data)
 
-	answer2, err := PartTwo(data)
+		if err != nil {
+			fmt.Println("failed to parse PartTwo", err)
+			return
+		}
 
-	if err != nil {
-		fmt.Println("failed to parse PartTwo", err)
-		return
+		fmt.Printf("Part Two: %d \n", answer2)
+		fmt.Printf("Time: %s \n", time.Since(start))
 	}
-
-	fmt.Printf("Part Two: %d \n", answer2)
 }
