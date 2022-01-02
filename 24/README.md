@@ -58,3 +58,14 @@ Then, after MONAD has finished running all of its instructions, it will indicate
 MONAD imposes additional, mysterious restrictions on model numbers, and legend says the last copy of the MONAD documentation was eaten by a tanuki. You'll need to figure out what MONAD does some other way.
 
 To enable as many submarine features as possible, find the largest valid fourteen-digit model number that contains no 0 digits. What is the largest model number accepted by MONAD?
+
+Your puzzle answer was 99691891979938.
+--- Part Two ---
+
+As the submarine starts booting up things like the Retro Encabulator, you realize that maybe you don't need all these submarine features after all.
+
+What is the smallest model number accepted by MONAD?
+
+Your puzzle answer was 27141191213911.
+
+Both parts of this puzzle are complete! They provide two gold stars: **
