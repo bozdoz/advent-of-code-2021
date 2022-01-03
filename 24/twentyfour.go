@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"time"
 
-	"bozdoz.com/aoc-2021/utils"
+	"github.com/bozdoz/advent-of-code-2021/utils"
 )
 
 // different puzzles require different file loaders

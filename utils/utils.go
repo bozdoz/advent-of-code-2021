@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"strings"
 
-	"bozdoz.com/aoc-2021/types"
+	"github.com/bozdoz/advent-of-code-2021/types"
 )
 
 func LoadAsLines(filename string) (lines []string) {
