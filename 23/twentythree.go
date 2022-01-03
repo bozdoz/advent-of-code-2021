@@ -22,35 +22,48 @@ func init() {
 }
 
 func PartOne(content string) (output int, err error) {
-	// reset counters
-	iterations = 0
-	cacheHits = 0
+	ch := make(chan int, 1)
 
-	burrow := parseInput(content)
+	go func() {
+		burrow := parseInput(content)
 
-	min := burrow.play()
+		fmt.Println("starting part one")
+		min := burrow.play()
+		fmt.Println("end part one")
+
+		ch <- min
+	}()
+
+	min := <-ch
 
 	return min, nil
 }
 
 func PartTwo(content string) (output int, err error) {
-	// reset counters
-	iterations = 0
-	cacheHits = 0
+	ch := make(chan int, 1)
 
-	folded := strings.Split(content, "\n")
-	// insert new lines for Part Two!
-	newContent := strings.Join([]string{
-		folded[2],
-		"#D#C#B#A#",
-		"#D#B#A#C#",
-		folded[3],
-	}, "")
-	burrow := parseInput(newContent)
+	go func() {
+		folded := strings.Split(content, "\n")
+		// insert new lines for Part Two!
+		newContent := strings.Join([]string{
+			folded[2],
+			"#D#C#B#A#",
+			"#D#B#A#C#",
+			folded[3],
+		}, "")
+		burrow := parseInput(newContent)
 
-	log.Println(burrow)
+		log.Println(burrow)
 
-	min := burrow.play()
+		fmt.Println("start part two")
+
+		min := burrow.play()
+		fmt.Println("end part two")
+
+		ch <- min
+	}()
+
+	min := <-ch
 
 	return min, nil
 }
