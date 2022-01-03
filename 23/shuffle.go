@@ -397,11 +397,18 @@ var cacheHits int
 var iterations int
 var cachedStates = map[string]int{}
 
+func resetCaches() {
+	cacheHits = 0
+	iterations = 0
+	cachedStates = map[string]int{}
+}
+
 func (this *Burrow) saveState() {
 	this.states = append(this.states, this.String())
 }
 
 func (this *Burrow) play() int {
+	resetCaches()
 	pq := types.PriorityQueue[Burrow]{}
 	pq.PushNewItem(this, 0)
 	min := math.MaxInt

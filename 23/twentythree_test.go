@@ -225,14 +225,12 @@ func TestCost1(t *testing.T) {
 		t.Logf("expected %v, got %v", 0, cost)
 		t.Fail()
 	}
-}
 
-func TestCost2(t *testing.T) {
-	input := `BACD
-		 		    ABCD`
-	burrow := parseInput(input)
+	input = `BACD
+						 ABCD`
+	burrow = parseInput(input)
 
-	cost := burrow.play()
+	cost = burrow.play()
 	// A moves 6, B moves 4
 	expected := 1*6 + 10*4
 
