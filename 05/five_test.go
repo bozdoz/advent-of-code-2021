@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"bozdoz.com/aoc-2021/utils"
+	"github.com/bozdoz/advent-of-code-2021/utils"
 )
 
 // fill in the answers for each part (as they come)

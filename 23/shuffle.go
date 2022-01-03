@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	"bozdoz.com/aoc-2021/types"
-	"bozdoz.com/aoc-2021/utils"
+	"github.com/bozdoz/advent-of-code-2021/types"
+	"github.com/bozdoz/advent-of-code-2021/utils"
 )
 
 const (

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"sync"
 
-	"bozdoz.com/aoc-2021/utils"
+	"github.com/bozdoz/advent-of-code-2021/utils"
 )
 
 type ImageEnhancer string

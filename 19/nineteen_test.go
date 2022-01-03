@@ -5,9 +5,9 @@ import (
 	"os"
 	"testing"
 
-	"bozdoz.com/aoc-2021/19/scanner2d"
-	"bozdoz.com/aoc-2021/19/scanner3d"
-	"bozdoz.com/aoc-2021/types"
+	"github.com/bozdoz/advent-of-code-2021/19/scanner2d"
+	"github.com/bozdoz/advent-of-code-2021/19/scanner3d"
+	"github.com/bozdoz/advent-of-code-2021/types"
 )
 
 // fill in the answers for each part (as they come)

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"bozdoz.com/aoc-2021/types"
+	"github.com/bozdoz/advent-of-code-2021/types"
 )
 
 // Target is basically a bbox

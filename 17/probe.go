@@ -1,6 +1,6 @@
 package main
 
-import "bozdoz.com/aoc-2021/types"
+import "github.com/bozdoz/advent-of-code-2021/types"
 
 type Probe struct {
 	position, velocity, forceVec types.Vector[int]

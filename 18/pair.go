@@ -6,7 +6,7 @@ import (
 	"io"
 	"strings"
 
-	"bozdoz.com/aoc-2021/types"
+	"github.com/bozdoz/advent-of-code-2021/types"
 )
 
 type Element struct {

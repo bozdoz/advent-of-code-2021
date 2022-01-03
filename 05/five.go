@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"bozdoz.com/aoc-2021/utils"
+	"github.com/bozdoz/advent-of-code-2021/utils"
 )
 
 type coords [2]int
