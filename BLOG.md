@@ -1,5 +1,52 @@
 # What Am I Learning Each Day?
 
+### Day 25
+
+Got 76.8% coverage for tests: `go test -cover`
+
+Simple one for the final day; I have to finish Day 19 to get part two of Day 25 though. 😢
+
+My program was pretty straight-forward: I always prefer `[][]Type` over `[]Type` for grids.  Set up enums for the cucumbers:
+
+```go
+type Cucumber rune
+
+const (
+	EMPTY Cucumber = '.'
+	LEFT  Cucumber = '>'
+	DOWN  Cucumber = 'v'
+)
+```
+
+Explicitly set the size of all the slices:
+
+```go
+grid.cucumbers = make([][]Cucumber, height)
+
+for i, line := range data {
+	grid.cucumbers[i] = make([]Cucumber, width)
+	// ...
+}
+```
+
+Added getters and setters for the grid (to help with the wrapping around the edges).  Added tests first (still only got 76.8% coverage).
+
+The step function is a bit complex with 6 nested `for` loops, but whatever: it's commented, it's still pretty straight-forward.
+
+String representation came in handy for testing.
+
+Today I think is the first time using `[...]` syntax to create an array, as opposed to creating a slice.  My IDE works great with it: correctly gets the size.
+
+First time doing what I believe to be a proper test suite, with nested functions and names for tests:
+
+```go
+func TestWrapAround(t *testing.T) {
+	t.Run("Vertical wraparound", func(t *testing.T) {
+		// ...
+	}
+}
+```
+
 ### Day 24
 
 Fun!  Until it wasn't.  Then fun turned into laziness.
