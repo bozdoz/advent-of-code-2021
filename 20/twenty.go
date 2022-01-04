@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 
 	"github.com/bozdoz/advent-of-code-2021/utils"
 )
@@ -10,22 +9,11 @@ import (
 // different puzzles require different file loaders
 var FileLoader = utils.LoadAsString
 
-// custom logger extended from the "log" package
-var log = utils.Logger()
-
-func init() {
-	// disable logs when running (enabled in _test)
-	log.SetOutput(ioutil.Discard)
-}
-
 func PartOne(content string) (output int, err error) {
 	image, enhancer := parseInput(content)
 
-	log.Println(image)
 	newImage := image.enhance(enhancer)
-	log.Println(newImage)
 	nextImage := newImage.enhance(enhancer)
-	log.Println(nextImage)
 
 	return nextImage.litCount(), nil
 }

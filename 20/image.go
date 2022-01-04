@@ -70,15 +70,17 @@ func (image *Image) isInfinitePixel(i, j int) bool {
 }
 
 func (image *Image) getBinaryForPixel(x, y int) int {
-	binary := ""
+	// TODO: using strings.Builder is better for memory management
+	// slightly faster benchmark times
+	var binary strings.Builder
 
 	for i := x - 1; i <= x+1; i++ {
 		for j := y - 1; j <= y+1; j++ {
-			binary += string(image.get(i, j))
+			binary.WriteRune(image.get(i, j))
 		}
 	}
 
-	val, _ := utils.BinaryToInt(binary)
+	val, _ := utils.BinaryToInt(binary.String())
 
 	return val
 }
@@ -87,7 +89,7 @@ type Worker struct {
 	x, y, index int
 }
 
-func (ref Image) enhancePixel(x, y int, stream chan Worker) {
+func (ref *Image) enhancePixel(x, y int, stream chan Worker) {
 	// x,y is lit
 	// enhance all pixels around it
 	for i := x - 1; i <= x+1; i++ {
@@ -102,7 +104,7 @@ func (ref Image) enhancePixel(x, y int, stream chan Worker) {
 }
 
 // need to update pixels all around each lit pixel
-func (image Image) enhance(enhancer ImageEnhancer) (newImage *Image) {
+func (image *Image) enhance(enhancer ImageEnhancer) (newImage *Image) {
 	width := image.width + 2
 	height := image.height + 2
 	pixels := make([]rune, width*height)
@@ -120,16 +122,17 @@ func (image Image) enhance(enhancer ImageEnhancer) (newImage *Image) {
 		// all #'s is 511
 		newImage.nextInfinitePixel = string(enhancer[511])
 	}
+
 	var wg sync.WaitGroup
 
 	stream := make(chan Worker)
 
+	wg.Add(image.height * image.width)
 	for y := 0; y < image.height; y++ {
 		for x := 0; x < image.width; x++ {
-			wg.Add(1)
 			go func(r, c int) {
-				defer wg.Done()
 				image.enhancePixel(r, c, stream)
+				wg.Done()
 			}(y, x)
 		}
 	}
@@ -140,8 +143,8 @@ func (image Image) enhance(enhancer ImageEnhancer) (newImage *Image) {
 	}()
 
 	for data := range stream {
-		x, y, index := data.x, data.y, data.index
-		if enhancer[index] == '#' {
+		x, y := data.x, data.y
+		if enhancer[data.index] == '#' {
 			newImage.set(x+1, y+1, '1')
 		} else {
 			newImage.set(x+1, y+1, '0')

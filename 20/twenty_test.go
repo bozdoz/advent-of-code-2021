@@ -2,7 +2,6 @@ package main
 
 import (
 	"math"
-	"os"
 	"strings"
 	"testing"
 
@@ -16,11 +15,6 @@ var answers = map[int]int{
 }
 
 var vals = FileLoader("example.txt")
-
-// show log output for tests only
-func init() {
-	log.SetOutput(os.Stdout)
-}
 
 func TestSinglePixel(t *testing.T) {
 	data := FileLoader("input.txt")
@@ -48,8 +42,6 @@ func TestSinglePixel(t *testing.T) {
 		t.Fail()
 	}
 
-	log.Println(image.String())
-
 	newImage := image.enhance(enhancer)
 
 	if newImage.infinitePixel != "#" {
@@ -73,8 +65,6 @@ func TestSinglePixel(t *testing.T) {
 			t.Fail()
 		}
 	}
-
-	log.Println(newImage.String())
 
 	lastImage := newImage.enhance(enhancer)
 	stringified = strings.Join(strings.Split(lastImage.String(), "\n"), "")
@@ -110,8 +100,6 @@ func TestSinglePixel(t *testing.T) {
 		t.Logf("expected %v, got %v", enhancer[val], stringified[4])
 		t.Fail()
 	}
-
-	log.Println(lastImage.String())
 }
 
 func TestExampleOne(t *testing.T) {
@@ -151,5 +139,11 @@ func TestExampleTwo(t *testing.T) {
 	if val != expected {
 		t.Logf("Answer should be %v, but got %v", expected, val)
 		t.Fail()
+	}
+}
+
+func BenchmarkPartTwo(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		PartTwo(vals)
 	}
 }
