@@ -27,8 +27,10 @@ cat > $NEW_DAY_NAME.go << EOF
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
+	"time"
 
 	"github.com/bozdoz/advent-of-code-2021/utils"
 )
@@ -56,24 +58,35 @@ func main() {
 	filename := "input.txt"
 
 	data := FileLoader(filename)
+	partFlag := flag.Int("part", -1, "pass a flag for -part")
 
-	answer, err := PartOne(data)
+	flag.Parse()
 
-	if err != nil {
-		fmt.Println("failed to parse PartOne", err)
-		return
+	if *partFlag < 2 {
+		start := time.Now()
+		answer, err := PartOne(data)
+
+		if err != nil {
+			fmt.Println("failed to parse PartOne", err)
+			return
+		}
+
+		fmt.Printf("Part One: %d \n", answer)
+		fmt.Printf("Time: %s \n", time.Since(start))
 	}
 
-	fmt.Printf("Part One: %d \n", answer)
+	if *partFlag != 1 {
+		start := time.Now()
+		answer2, err := PartTwo(data)
 
-	answer2, err := PartTwo(data)
+		if err != nil {
+			fmt.Println("failed to parse PartTwo", err)
+			return
+		}
 
-	if err != nil {
-		fmt.Println("failed to parse PartTwo", err)
-		return
+		fmt.Printf("Part Two: %d \n", answer2)
+		fmt.Printf("Time: %s \n", time.Since(start))
 	}
-
-	fmt.Printf("Part Two: %d \n", answer2)
 }
 EOF
 
