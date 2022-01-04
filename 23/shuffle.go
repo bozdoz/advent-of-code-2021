@@ -285,8 +285,8 @@ func (burrow *Burrow) movePodTo(pod *Amphipod, x, y int8) {
 	burrow.grid[y][x] = pod
 	burrow.grid[pod.y][pod.x] = nil
 
-	dx := utils.AbsInt(pod.x - x)
-	dy := utils.AbsInt(pod.y - y)
+	dx := utils.Abs(pod.x - x)
+	dy := utils.Abs(pod.y - y)
 
 	// update pod
 	pod.x = x

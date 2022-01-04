@@ -37,6 +37,35 @@ func (this *Vector3d) Subtract(vec Vector3d) Vector3d {
 	}
 }
 
+func (this *Vector3d) Divide(vec Vector3d) Vector3d {
+	var x, y, z int
+	if vec.X == 0 || this.X == 0 {
+		x = 0
+	} else {
+		x = this.X / vec.X
+	}
+	if vec.Y == 0 || this.Y == 0 {
+		y = 0
+	} else {
+		y = this.Y / vec.Y
+	}
+	if vec.Z == 0 || this.Z == 0 {
+		z = 0
+	} else {
+		z = this.Z / vec.Z
+	}
+
+	return Vector3d{x, y, z}
+}
+
+func (this *Vector3d) Multiply(vec Vector3d) Vector3d {
+	return Vector3d{
+		this.X * vec.X,
+		this.Y * vec.Y,
+		this.Z * vec.Z,
+	}
+}
+
 func (this *Vector3d) dotProduct(vec Vector3d) int {
 	return this.X*vec.X + this.Y*vec.Y + this.Z*vec.Z
 }

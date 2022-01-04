@@ -246,7 +246,7 @@ func BinaryToInt[T ~string](bin T) (int, error) {
 	return int(val), err
 }
 
-func AbsInt[T types.Numeric](num T) T {
+func Abs[T types.Numeric](num T) T {
 	if num < 0 {
 		return -num
 	}
