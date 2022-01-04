@@ -542,18 +542,115 @@ So I only wrote to the new image pixels after waiting for data to come back thro
 
 How awful is it to extract a large type into a utility package? The fields all have to be uppercase in order for them to be accessed by another package.
 
-debugging:
+Gave up
 
-```bash
-position: {-618 -824 -621}
-edges:
-&{43 -8 -46} &{-1092 -1404 -1288} &{-625 -791 -550} &{-1022 -236 280} &{258 -1473 -1384} &{-1171 -1169 -54} &{-34 -1692 -64} &{-1248 -1143 -242} &{-1146 -181 -1030} &{-1008 -149 172} &{-133 -467 -968} &{-1182 -1216 -144} &{-1073 -1553 -1349} &{171 -1724 -70} &{-1041 -123 -1055} &{220 -1415 -1355} &{-81 -1 -163} &{-273 -513 -1002} &{-171 -495 -939} &{-1162 -197 269} &{274 -1348 -1305} &{71 -1669 -91} &{-1061 -1404 -1283} &{-1077 -117 -1022}  
-position: {686 422 578}
-edges:
-&{1008 -149 -172} &{1077 -117 1022} &{133 -467 968} &{1050 1185 1471} &{-69 776 1197} &{171 -495 939} &{119 783 -149} &{1146 -181 1030} &{1041 -123 1055} &{273 -513 1002} &{100 857 21} &{1022 -236 -280} &{591 284 556} &{1026 991 1424} &{-43 -8 46} &{-121 921 1289} &{-17 913 1107} &{1014 1107 58} &{81 -1 163} &{1162 -197 -269} &{17 824 -22} &{1186 1183 44} &{1152 1088 1389} &{1115 1014 4}
+**Update**
+
+What a pain to debug!  I hate the third dimension!
+
+I made two packages: `scanner2d.go` and `scanner3d.go`.  Tried to figure out all the logic in 2d first and then just swap `vector2d` with `vector3d`.
+
+I think it *mostly* worked, though I got caught up with the instruction that scanners could be any rotation and any orientation.
+
+So my logic was extremely **lazy** and maybe **lucky**, in the end.
+
+I got all the edges for each beacon for each scanner; I saved all the edges to a `map[string][]types.Vector3d{}`; the key being a sorted, absolute string representation of a vector's x,y,z coordinates.  Sorted because the edges suffer the same rotation issues as the scanners, and as absolute numbers because of the orientation (or vice versa, I guess).  The value is a `[]types.Vector3d{}` because I wasn't actually sure that an edge represents an actual match.
+
+I was thinking, what if a single scanner has two beacons like this:
+
+> { 1, -2, 3 }, { 2, -1, 3 }
+
+Seems perfectly reasonable, but my edge storing system didn't account for such edge cases. I literally decided I'd deal with that if it came up.
+
+So the logic was that I'd get all the edges.  Then I'd compare all the edges (using my sorted, absolute keys). I need a minimum of 12 beacons to match a scanner, so that meant that I needed a minimum of 11 edges to match a beacon.
+
+Once I got a matching scanner, I didn't know what to do, so I gave up (initially).
+
+Once I came back to it, I realized all I had left to do was compare any two of the matching beacons, and compare any two of their matching edges, in order to derive how they differ: i.e. how the order differed and how the signs differed.
+
+```go
+var order [3]int
+var signs types.Vector3d
+
+reOrderedEdge := types.Vector3d{}
+axes := [3]int{edge.X, edge.Y, edge.Z}
+altAxes := [3]int{altEdge.X, altEdge.Y, altEdge.Z}
+
+for i, axis := range axes {
+	for j, altAxis := range altAxes {
+		if utils.Abs(axis) == utils.Abs(altAxis) {
+			// reorder y,z,x to x,y,z for example
+			order[i] = j
+			
+			switch i {
+			case 0:
+				reOrderedEdge.X = altAxis
+			case 1:
+				reOrderedEdge.Y = altAxis
+			case 2:
+				reOrderedEdge.Z = altAxis
+			}
+			break
+		}
+	}
+}
+
+// signs is what to multiply origin vector by
+// to get the same signs:
+// {1,2,3} -> {-1,2,-3} = {-1,1,-1}
+signs = edge.Divide(reOrderedEdge)
 ```
 
-Gave up
+Now this is super lazy, because I'm just grabbing the first matching edge, and there is no guarantee I wouldn't get a match like this:
+
+> { 2, 2, 2 }, {-2, 2, -2}
+
+But, again, I figured I'd deal with that if I ran into it (didn't).
+
+The align function was pretty simple:
+
+```go
+func align(
+	vec types.Vector3d, 
+	order [3]int, 
+	signs types.Vector3d,
+) types.Vector3d {
+	arr := [3]int{vec.X, vec.Y, vec.Z}
+
+	vec = types.NewVector3d(
+		arr[order[0]],
+		arr[order[1]],
+		arr[order[2]],
+	)
+
+	vec = vec.Multiply(signs)
+
+	return vec
+}
+```
+
+Then, once I was reasonably sure I could realign beacons to a different scanner perspective, I did that to the unmatched beacons (matched are already represented in the reference scanner):
+
+```go
+signs, order := selfBeacon.getOrientationDiff(altBeacon)
+alt := align(altBeacon.position, order, signs)
+
+for _, b := range unmatched {
+	// compare unmatched to a beacon in the same orientation
+	aligned := align(b.position, order, signs)
+	diff := aligned.Subtract(alt)
+	// use the diff to find the position in the reference orientation
+	newPosition := selfBeacon.position.Add(diff)
+
+	newBeacons = append(newBeacons, &Beacon3d{
+		position: newPosition,
+	})
+}
+```
+
+Finding the comparing scanner position was the same idea.
+
+And it worked!  In ~30seconds.  Which is super fine.
 
 ### Day 18
 
