@@ -10,12 +10,6 @@ import (
 	"github.com/bozdoz/advent-of-code-2021/types"
 )
 
-// fill in the answers for each part (as they come)
-var answers = map[int]int{
-	1: 0,
-	2: 0,
-}
-
 // show log output for tests only
 func init() {
 	log.SetOutput(os.Stdout)
@@ -43,66 +37,36 @@ func Test2d(t *testing.T) {
 func Test3dFirst(t *testing.T) {
 	scanners := scanner3d.ParseScanners(FileLoader("example3d.txt"))
 
-	_, matchedBeacons := scanners[0].CompareScanner(scanners[1])
-
-	expected := 12
-
-	if matchedBeacons != expected {
-		t.Logf("expected %v beacons to match, but got %v", expected, matchedBeacons)
-		t.Fail()
-	}
-}
-
-func Test3dSecond(t *testing.T) {
-	scanners := scanner3d.ParseScanners(FileLoader("example3d.txt"))
-
-	composite := scanners[1]
-
-	_, matchedBeacons := composite.CompareScanner(scanners[4])
-
-	expected := 12
-
-	if matchedBeacons != expected {
-		t.Logf("expected %v beacons to match, but got %v", expected, matchedBeacons)
-		t.Fail()
-	}
-}
-
-func needsReworking3dEqual(t *testing.T) {
-	scanners := scanner3d.ParseScanners(FileLoader("exampleEqual.txt"))
-	expected := 6
-
 	composite := scanners[0]
 
-	queue := types.Queue[scanner3d.Scanner]{}
+	newBeacons, matchedBeacons, scannerPos := composite.CompareScanner(scanners[1])
 
-	for _, scanner := range scanners[1:] {
-		queue.Push(scanner)
-		fmt.Println(scanner)
-	}
+	expected := 12
 
-	for len(queue) > 0 {
-		scanner := queue.Shift()
-		fmt.Println("comparing", scanner.Name)
-		newBeacons, count := composite.CompareScanner(scanner)
-
-		if count > 0 {
-			composite.AddBeacons(newBeacons)
-		} else {
-			queue.Push(scanner)
-		}
-	}
-
-	if len(composite.Beacons) != expected {
-		t.Logf("expected %v beacons in total, but got %v", expected, len(composite.Beacons))
+	if matchedBeacons != expected {
+		t.Logf("expected %v beacons to match, but got %v", expected, matchedBeacons)
 		t.Fail()
+	}
+
+	if scannerPos.X != 68 || scannerPos.Y != -1246 || scannerPos.Z != -43 {
+		t.Errorf("expected %v got %v", []int{68, -1246, -43}, scannerPos)
+	}
+
+	composite.AddBeacons(newBeacons)
+
+	newBeacons, matchedBeacons, scannerPos = composite.CompareScanner(scanners[4])
+
+	if matchedBeacons != expected {
+		t.Logf("expected %v beacons to match scanner 4, but got %v", expected, matchedBeacons)
+		t.Fail()
+	}
+
+	if scannerPos.X != -20 || scannerPos.Y != -1133 || scannerPos.Z != 1061 {
+		t.Errorf("[s4] expected %v got %v", []int{-20, -1133, 1061}, scannerPos)
 	}
 }
 
 func Test3dFull(t *testing.T) {
-	// TODO: Day 19.1
-	t.SkipNow()
-
 	scanners := scanner3d.ParseScanners(FileLoader("example3d.txt"))
 	expected := 79
 
@@ -128,7 +92,7 @@ func Test3dFull(t *testing.T) {
 
 		lastScanner = scanner
 
-		newBeacons, count := composite.CompareScanner(scanner)
+		newBeacons, count, _ := composite.CompareScanner(scanner)
 
 		fmt.Println("found", count)
 
@@ -143,5 +107,30 @@ func Test3dFull(t *testing.T) {
 	if len(composite.Beacons) != expected {
 		t.Logf("expected %v beacons in total, but got %v", expected, len(composite.Beacons))
 		t.Fail()
+	}
+}
+
+func TestManhattan(t *testing.T) {
+	a := types.NewVector3d(1105, -1205, 1229)
+	b := types.NewVector3d(-92, -2380, -20)
+
+	distance := scanner3d.ManhattanDistance(a, b)
+
+	if distance != 3621 {
+		t.Errorf("expected %v, got %v", 3621, distance)
+	}
+}
+
+func TestPartTwo(t *testing.T) {
+	vals := FileLoader("example3d.txt")
+
+	answer, err := PartTwo(vals)
+
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+
+	if answer != 3621 {
+		t.Errorf("expected %v, got %v", 3621, answer)
 	}
 }

@@ -1,6 +1,7 @@
 package scanner3d
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -46,7 +47,7 @@ func ParseScanners(data []string) []*Scanner {
 			}
 
 			curScanner.Beacons = append(curScanner.Beacons, &Beacon3d{
-				position: types.Vector3d{X: x, Y: y, Z: z},
+				position: types.NewVector3d(x, y, z),
 			})
 		}
 	}
@@ -71,28 +72,22 @@ func (scanner *Scanner) updateEdges() {
 	}
 }
 
-func absInt(v int) int {
-	if v < 0 {
-		return -v
-	}
-	return v
-}
-
 // removes negative signs so we can get the un-oriented numbers
 // for somewhat more efficient searching
 func getVectorKey(vector types.Vector3d) string {
-	sorted := []int{absInt(vector.X), absInt(vector.Y), absInt(vector.Z)}
+	sorted := []int{utils.Abs(vector.X), utils.Abs(vector.Y), utils.Abs(vector.Z)}
 	sort.Ints(sorted)
 	return fmt.Sprint(sorted[0], sorted[1], sorted[2])
 }
 
 // edges could have different orientations: +-x,+-y,+-z
 // AND the number could appear anywhere
-func (this *Beacon3d) findEdge(edge types.Vector3d) bool {
+func (this *Beacon3d) findEdge(edge types.Vector3d) ([]types.Vector3d, bool) {
 	edgeStr := getVectorKey(edge)
-	_, ok := this.edges[edgeStr]
 
-	return ok
+	edges, ok := this.edges[edgeStr]
+
+	return edges, ok
 }
 
 func (this *Beacon3d) sharesAtLeastNEdges(n int, beacon *Beacon3d) bool {
@@ -100,7 +95,7 @@ func (this *Beacon3d) sharesAtLeastNEdges(n int, beacon *Beacon3d) bool {
 
 	for _, arr := range this.edges {
 		for _, edge := range arr {
-			ok := beacon.findEdge(edge)
+			_, ok := beacon.findEdge(edge)
 
 			if ok {
 				shared++
@@ -115,8 +110,72 @@ func (this *Beacon3d) sharesAtLeastNEdges(n int, beacon *Beacon3d) bool {
 	return false
 }
 
+func (this *Beacon3d) getOrientationDiff(alt *Beacon3d) (signs types.Vector3d, order [3]int) {
+	for _, arr := range this.edges {
+		for _, edge := range arr {
+			edges, ok := alt.findEdge(edge)
+
+			if ok && len(edges) == 1 {
+				// this edge has all the same absolute numbers in some orientation
+				altEdge := edges[0]
+				reOrderedEdge := types.Vector3d{}
+
+				axes := [3]int{edge.X, edge.Y, edge.Z}
+				altAxes := [3]int{altEdge.X, altEdge.Y, altEdge.Z}
+
+				for i, axis := range axes {
+					for j, altAxis := range altAxes {
+						if utils.Abs(axis) == utils.Abs(altAxis) {
+							// reorder y,z,x to x,y,z for example
+							order[i] = j
+
+							switch i {
+							case 0:
+								reOrderedEdge.X = altAxis
+							case 1:
+								reOrderedEdge.Y = altAxis
+							case 2:
+								reOrderedEdge.Z = altAxis
+							}
+							break
+						}
+					}
+				}
+
+				// signs is what to multiply origin vector by
+				// to get the same signs:
+				// {1,2,3} -> {-1,2,-3} = {-1,1,-1}
+				signs = edge.Divide(reOrderedEdge)
+
+				// TODO: lazy, grabbing just the first?
+				return
+			}
+		}
+	}
+
+	return
+}
+
+func align(vec types.Vector3d, order [3]int, signs types.Vector3d) types.Vector3d {
+	arr := [3]int{vec.X, vec.Y, vec.Z}
+
+	vec = types.NewVector3d(
+		arr[order[0]],
+		arr[order[1]],
+		arr[order[2]],
+	)
+
+	vec = vec.Multiply(signs)
+
+	return vec
+}
+
 // returns new Beacons in the correct projection if enough matched
-func (this *Scanner) CompareScanner(scanner *Scanner) (newBeacons []*Beacon3d, shared int) {
+func (this *Scanner) CompareScanner(scanner *Scanner) (
+	newBeacons []*Beacon3d,
+	shared int,
+	scannerPosition types.Vector3d,
+) {
 	// make a copy to alter the list within the loop
 	unmatched := make([]*Beacon3d, len(scanner.Beacons))
 	copy(unmatched, scanner.Beacons)
@@ -126,9 +185,6 @@ func (this *Scanner) CompareScanner(scanner *Scanner) (newBeacons []*Beacon3d, s
 
 	// compare all scanners' beacons' edges
 	for _, a := range this.Beacons {
-		// if a.position.X != -618 {
-		// 	continue
-		// }
 		if (remaining + shared) < minSharedBeacons {
 			// not enough beacons to be a match
 			break
@@ -154,16 +210,22 @@ func (this *Scanner) CompareScanner(scanner *Scanner) (newBeacons []*Beacon3d, s
 	didMatch := shared >= minSharedBeacons
 
 	if didMatch {
+		signs, order := selfBeacon.getOrientationDiff(altBeacon)
+		alt := align(altBeacon.position, order, signs)
+
 		// need to transform unmatched
 		for _, b := range unmatched {
 			// compare unmatched to an edge in the same orientation
-			diff := b.position.Subtract(altBeacon.position)
+			aligned := align(b.position, order, signs)
+			diff := aligned.Subtract(alt)
 			newPosition := selfBeacon.position.Add(diff)
 
 			newBeacons = append(newBeacons, &Beacon3d{
 				position: newPosition,
 			})
 		}
+
+		scannerPosition = selfBeacon.position.Subtract(alt)
 	}
 
 	return
@@ -196,6 +258,58 @@ func (scanner *Scanner) AddBeacons(beacons []*Beacon3d) {
 			addEdge(b, a)
 		}
 	}
+}
+
+func MergeScanners(content []string) (
+	composite *Scanner,
+	relativePositions []types.Vector3d,
+	err error,
+) {
+	scanners := ParseScanners(content)
+	relativePositions = make([]types.Vector3d, 0, len(scanners))
+
+	composite = scanners[0]
+
+	// scanner 0 is at 0,0,0, relatively
+	relativePositions = append(relativePositions, types.NewVector3d(0, 0, 0))
+
+	queue := types.Queue[Scanner]{}
+
+	for _, scanner := range scanners[1:] {
+		queue.Push(scanner)
+	}
+
+	lastScanner := composite
+
+	for len(queue) > 0 {
+		scanner := queue.Shift()
+
+		if scanner == lastScanner {
+			err = errors.New(fmt.Sprint("repeat scanner found beacons:", len(scanner.Beacons)))
+			return
+		}
+
+		lastScanner = scanner
+
+		newBeacons, count, relativeScanner := composite.CompareScanner(scanner)
+
+		if count > 0 {
+			composite.AddBeacons(newBeacons)
+			relativePositions = append(relativePositions, relativeScanner)
+		} else {
+			queue.Push(scanner)
+		}
+	}
+
+	return
+}
+
+func ManhattanDistance(a types.Vector3d, b types.Vector3d) int {
+	x := a.X - b.X
+	y := a.Y - b.Y
+	z := a.Z - b.Z
+
+	return utils.Abs(x) + utils.Abs(y) + utils.Abs(z)
 }
 
 //
