@@ -94,7 +94,7 @@ func newGrid(data []string) (grid Grid) {
 func (grid *Grid) updateNeighbours() {
 	for r, row := range grid.cells {
 		for c, cell := range row {
-			indices := [][]int{
+			indices := [...][2]int{
 				{r - 1, c - 1},
 				{r - 1, c},
 				{r - 1, c + 1},
@@ -138,6 +138,7 @@ func (cell *Cell) resolveFlash() {
 	cell.energy = 0
 }
 
+// TODO: slice should be pointer
 func (grid *Grid) getAllCells() (cells []*Cell) {
 	for _, row := range grid.cells {
 		for _, cell := range row {

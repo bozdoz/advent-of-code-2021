@@ -12,8 +12,9 @@ const (
 )
 
 type Cave struct {
-	name      string
-	isBig     bool
+	name  string
+	isBig bool
+	// TODO: should be pointer?
 	flowsInto []*Cave
 }
 

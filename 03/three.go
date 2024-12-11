@@ -9,6 +9,7 @@ import (
 	"github.com/bozdoz/advent-of-code-2021/utils"
 )
 
+// TODO: should return a pointer
 func transpose(lines []string) [][]int {
 	transposed := make([][]int, len(lines[0]))
 
@@ -35,6 +36,7 @@ func PartOne(lines []string) (int, error) {
 	half := float64(len(lines)) / float64(2)
 
 	transposed := transpose(lines)
+	// TODO: just use binary operators
 	gamma := ""
 	epsilon := ""
 

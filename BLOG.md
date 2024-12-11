@@ -1019,36 +1019,36 @@ Felt better about today's puzzle.  Seemed complex enough to earn my attention an
 Tried to add a deferred function today, but it didn't actually work:
 
 ```go
-	// any octopus with an energy level greater than 9 flashes
-	for _, cell := range cells {
-		// check for cell.flashed because
-		// it may have been flashed by a neighbour
-		// ...scandalous!
-		if cell.energy > maxEnergy && !cell.flashed {
-			cell.flash()
-		}
+// any octopus with an energy level greater than 9 flashes
+for _, cell := range cells {
+	// check for cell.flashed because
+	// it may have been flashed by a neighbour
+	// ...scandalous!
+	if cell.energy > maxEnergy && !cell.flashed {
+		cell.flash()
 	}
+}
 
-	// wanted to make this a deferred statement, but no
-	for _, cell := range cells {
-		if cell.flashed {
-			flashes++
-			cell.resolveFlash()
-		}
+// wanted to make this a deferred statement, but no
+for _, cell := range cells {
+	if cell.flashed {
+		flashes++
+		cell.resolveFlash()
 	}
+}
 ```
 
 That was going to be:
 
 ```go
-	for _, cell := range cells {
-		if cell.energy > maxEnergy && !cell.flashed {
-			cell.flash()
-			// thought I could resolve the flash,
-			// but forgot that neighbours flash themselves in another function...
-			defer cell.resolveFlash()
-		}
+for _, cell := range cells {
+	if cell.energy > maxEnergy && !cell.flashed {
+		cell.flash()
+		// thought I could resolve the flash,
+		// but forgot that neighbours flash themselves in another function...
+		defer cell.resolveFlash()
 	}
+}
 ```
 
 Today was also my first time writing a custom string representation for printing (since that's typically how I debug)
@@ -1154,9 +1154,9 @@ type Line struct {
 }
 ```
 
-I defined each bracket type immediately as to whether it was **open** or not; I also wanted to explicitly pair them for reference.  So my logic was: 1. I generally ignore open brackets (add them to the stack), and compared closing brackets with the tail of the stack. Corrupted lines need to know which bracket it's corrupted by, and incomplete lines need to know which open brackets are unpaired.
+I defined each bracket type immediately as to whether it was **open** or not; I also wanted to explicitly pair them for reference.  So my logic was: I generally ignore open brackets (add them to the stack), and compared closing brackets with the tail of the stack. Corrupted lines need to know which bracket it's corrupted by, and incomplete lines need to know which open brackets are unpaired.
 
-I learned that I ought to be using pointers as opposed to copying data structures in every method.  I wasn't aware that was happening yesterday, and I should revisit Day 9.
+I learned that I ought to be using pointers as opposed to copying data structures in every method.  I wasn't aware that was happening yesterday, and I should **revisit Day 9**.
 
 ### Day 9
 

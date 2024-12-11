@@ -29,6 +29,8 @@ func calcLinearFuel(positions []int, ref int) (fuel int) {
 	return
 }
 
+// TODO: pointers to slices
+// TODO: slices should have explicit capacities
 // maybe utility function
 func sortedUnique(data []int) (unique []int) {
 	set := map[int]bool{}

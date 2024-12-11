@@ -15,6 +15,7 @@ var FileLoader = utils.LoadAsLines
 
 type heightmap [][]int
 
+// TODO: probably can add capacities to these slices
 func newHeightMap(data []string) (heights heightmap) {
 	for i, line := range data {
 		heights = append(heights, []int{})
@@ -35,7 +36,7 @@ func newHeightMap(data []string) (heights heightmap) {
 }
 
 func (heights *heightmap) findNeighbours(row, col int) (neighbours [][2]int, err error) {
-	indices := [][]int{
+	indices := [...][2]int{
 		{col, row - 1},
 		{col, row + 1},
 		{col - 1, row},

@@ -27,6 +27,7 @@ var brackets = map[rune]Bracket{
 	'>': {pair: '<', corruptScore: 25137, autocompleteScore: 4},
 }
 
+// TODO: replace with types.Stack[T]?
 type Stack []rune
 
 func (stack *Stack) pop() (out rune) {

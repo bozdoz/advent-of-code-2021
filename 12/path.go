@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+// TODO: pointers?
+
 // Path is a route through connected caves
 type Path []*Cave
 
